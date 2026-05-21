@@ -1,0 +1,37 @@
+---
+description: Umbraco monitoring demo — phases, stack, no observability ahead of schedule
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Umbraco Monitoring Demo
+
+Before writing code, read `AGENTS.md` and the relevant `docs/*.md`.
+
+## Default phase
+
+Project is in **Phase 0** (documentation only) until the user says “Phase N”.
+
+- **Phases 1–4:** apps + k6 + K8s apps. No OTel, Faro, Grafana stack, Beyla.
+- **Phase 5:** `deployment/k8s/observability/` only.
+- **Phase 6+:** instrumentation and Alloy.
+
+## Stack
+
+- CMS: headless Umbraco (.NET)
+- Web: Next.js + shadcn
+- Deploy: Kubernetes
+- Observability: Grafana, Mimir, Loki, Tempo, Pyroscope, Alloy, Faro; Beyla optional Phase 8
+
+## When adding functionality
+
+Update `docs/APPLICATION_SPEC.md` and `docs/K6_LOAD_TESTING.md` if a new load-bearing route appears.
+
+## Secrets
+
+Do not commit `.env`, passwords, or kubeconfig with credentials.
+
+## Commits
+
+Only when the user explicitly asks.

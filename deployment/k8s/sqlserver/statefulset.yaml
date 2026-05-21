@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mssql2025
+  namespace: sqlserver
+  labels:
+    app.kubernetes.io/name: mssql2025
+    app.kubernetes.io/component: database
+spec:
+  serviceName: mssql2025
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mssql2025
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mssql2025
+        app.kubernetes.io/component: database
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        fsGroup: 10001
+      containers:
+        - name: mssql
+          image: mcr.microsoft.com/mssql/server:2025-latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mssql
+              containerPort: 1433
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_PID
+              value: Developer
+            - name: MSSQL_SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mssql2025-secret
+                  key: SA_PASSWORD
+          resources:
+            requests:
+              cpu: 500m
+              memory: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          volumeMounts:
+            - name: mssql-data
+              mountPath: /var/opt/mssql
+          readinessProbe:
+            tcpSocket:
+              port: mssql
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: mssql
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+  volumeClaimTemplates:
+    - metadata:
+        name: mssql-data
+        labels:
+          app.kubernetes.io/name: mssql2025
+          app.kubernetes.io/component: database
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        # storageClassName: standard  # set for your cluster if needed

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql2025
+  namespace: sqlserver
+  labels:
+    app.kubernetes.io/name: mssql2025
+    app.kubernetes.io/component: database
+spec:
+  # ClusterIP + externalIPs: SQL on 10.255.0.101:1433 without a second MetalLB lease.
+  # Reserve the single pool IP (10.255.0.101/32) for Traefik LoadBalancer (80/443).
+  type: ClusterIP
+  externalIPs:
+    - 10.255.0.101
+  selector:
+    app.kubernetes.io/name: mssql2025
+  ports:
+    - name: mssql
+      port: 1433
+      targetPort: mssql

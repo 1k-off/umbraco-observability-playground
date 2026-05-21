@@ -1,0 +1,953 @@
+{
+  "version": 1,
+  "skills": {
+    "analyzing-dotnet-performance": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-diag/skills/analyzing-dotnet-performance/SKILL.md",
+      "computedHash": "455c653913449f6fc71807fd9824dbb610d4f2e716ec0b0e4ae5c5c442ddb09b"
+    },
+    "android-tombstone-symbolication": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-diag/skills/android-tombstone-symbolication/SKILL.md",
+      "computedHash": "c7be23945088310c5b52e6af4f6d0bf87856de33d235989f73c119fcc5988927"
+    },
+    "apple-crash-symbolication": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-diag/skills/apple-crash-symbolication/SKILL.md",
+      "computedHash": "7902b09d2c5e0855758af13850ce1686ce58ae896ea2d6032abbd699c838b275"
+    },
+    "assertion-quality": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/assertion-quality/SKILL.md",
+      "computedHash": "3bdd374d5b0c1a7b7e57202029ad8338dde0a84334a6a3a5fc8417f1a4514057"
+    },
+    "binlog-failure-analysis": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/binlog-failure-analysis/SKILL.md",
+      "computedHash": "eb9ed0c391563554e44edc56c2c0ce9f621660154d93e9c32b9ddaf5efd0bf23"
+    },
+    "binlog-generation": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/binlog-generation/SKILL.md",
+      "computedHash": "b6880ceaec8559442e27a3b4c9648cd71f5bd5d7b9e82f2c7806069dafd12d8b"
+    },
+    "build-parallelism": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/build-parallelism/SKILL.md",
+      "computedHash": "9bf2d680f2ba6ed7218c8c29f7ce4bc8baff1c7a88cd5b523aad6a44ae3b8827"
+    },
+    "build-perf-baseline": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/build-perf-baseline/SKILL.md",
+      "computedHash": "096fe070345c6265200bcaac5c79f7c08e852683b52becf95d5f3934b36c67d5"
+    },
+    "build-perf-diagnostics": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/build-perf-diagnostics/SKILL.md",
+      "computedHash": "ee1d7db245994635e1be0bb17a63eec107abbe39c48082da942bf8dff2f4dd48"
+    },
+    "check-bin-obj-clash": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/check-bin-obj-clash/SKILL.md",
+      "computedHash": "eb197a1660171fb5541bd9ccce30fefec3990f5692b4bb35d1010d8124b18116"
+    },
+    "clr-activation-debugging": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-diag/skills/clr-activation-debugging/SKILL.md",
+      "computedHash": "e3ce61642beed96f44b7babaed8662586bec95f70847ea0202c1c01160473e56"
+    },
+    "code-testing-agent": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/code-testing-agent/SKILL.md",
+      "computedHash": "b4d838583d280834da97c39dba6979e435861f1d1ac4214ae5d101c33b95db84"
+    },
+    "code-testing-extensions": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/code-testing-extensions/SKILL.md",
+      "computedHash": "cb7a8194f56a5dfce141af3df70314d2941ecf7bb83f18f59fea0403523173b8"
+    },
+    "configuring-opentelemetry-dotnet": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-aspnet/skills/configuring-opentelemetry-dotnet/SKILL.md",
+      "computedHash": "736b7476710267bd46154714f38e16f5bac5498ce6a9aa980eb1d0a214960890"
+    },
+    "convert-to-cpm": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-nuget/skills/convert-to-cpm/SKILL.md",
+      "computedHash": "9f00cc8db766033a6feee4f3960de941e6ae992648b0d39c75f6930a6d93314e"
+    },
+    "coverage-analysis": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/coverage-analysis/SKILL.md",
+      "computedHash": "9243d8b36b2891f8688e8490642d3a8b823303ad41b981ef918b091236a02bff"
+    },
+    "crap-score": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/crap-score/SKILL.md",
+      "computedHash": "2b3a4933c845a4b8268e2ea95717752b3dae85c8c7462f81d57f34e84b3553ab"
+    },
+    "create-custom-agent": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/create-custom-agent/SKILL.md",
+      "computedHash": "319e3a22606d3b5c22e534e8052ed3d53554094ed9c2cb88ee0d1ff42c2f113c"
+    },
+    "create-skill": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/create-skill/SKILL.md",
+      "computedHash": "954b31d83920d8c5914d0bf11215f50714088f296cb70a552c039e5fa2800325"
+    },
+    "create-skill-test": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/create-skill-test/SKILL.md",
+      "computedHash": "6718fe29465360675cb9260bf6e46e5babdc1c1721752d8c244d86c7ffc9fdff"
+    },
+    "csharp-scripts": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet/skills/csharp-scripts/SKILL.md",
+      "computedHash": "66fc0c59515a4f8ad15546477b39ce1f3817be4ef31533404370dcb0ab77da86"
+    },
+    "detect-static-dependencies": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/detect-static-dependencies/SKILL.md",
+      "computedHash": "053bb943fec04e77e7f9fa4ded2b3874b0019d5e8c7741d1b8c10151a5141697"
+    },
+    "directory-build-organization": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/directory-build-organization/SKILL.md",
+      "computedHash": "179cb48521606456e9e759469bf684282eb80144721257b1dbfd6cefd55525b1"
+    },
+    "dotnet-aot-compat": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-upgrade/skills/dotnet-aot-compat/SKILL.md",
+      "computedHash": "71e462a0382d3d07a858d466e8465a2faa62dc2bf7526e7b9928db13b9961602"
+    },
+    "dotnet-maui-doctor": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-maui/skills/dotnet-maui-doctor/SKILL.md",
+      "computedHash": "58c051d67ae9a31fc2c8c2c09fc610a1cfdb9c35f36572837c4febc75fe8bb8d"
+    },
+    "dotnet-pinvoke": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet/skills/dotnet-pinvoke/SKILL.md",
+      "computedHash": "06bb66be16c41c0adb0ca34d4aee64b7a651ef1bdd3d0c8df71d15ef648481ee"
+    },
+    "dotnet-test-frameworks": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/dotnet-test-frameworks/SKILL.md",
+      "computedHash": "e6d6966724b236372f500df9cc840f99753979b1c88904a0240e79ea88b4c78c"
+    },
+    "dotnet-trace-collect": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-diag/skills/dotnet-trace-collect/SKILL.md",
+      "computedHash": "0f85e5292974bb2892327da90327b3f20d8341bf82fc6f55b4c4020e41cd6c5c"
+    },
+    "dotnet-webapi": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-aspnet/skills/dotnet-webapi/SKILL.md",
+      "computedHash": "9f9ca386ddefb34ebeaf269c6a7dac0bd0a8e9ea901ad5c489cd4d5e7c61fb22"
+    },
+    "dump-collect": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-diag/skills/dump-collect/SKILL.md",
+      "computedHash": "8ebf8877ca6f36f6580109334b2c9f166be5b12db95fdf367c551986156f87c7"
+    },
+    "eval-performance": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/eval-performance/SKILL.md",
+      "computedHash": "ca78ddc8a1942080f4f366d0fd1fc9390bc8ef183deb84e43057f9698383fb24"
+    },
+    "filter-syntax": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/filter-syntax/SKILL.md",
+      "computedHash": "39e22fef86d78cf3f9d3ee4a8908ecbe78eb740928c228d3c2886daf861e2de6"
+    },
+    "generate-testability-wrappers": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/generate-testability-wrappers/SKILL.md",
+      "computedHash": "79fa0f9c079a5f15c9303756cfe793f5c166fa84a15b0292d432368d567ec97f"
+    },
+    "including-generated-files": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/including-generated-files/SKILL.md",
+      "computedHash": "106cc5e8263efb116b5c9b146fa3ee792c783b9a1d5b2eb305703e70f57a9d99"
+    },
+    "incremental-build": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/incremental-build/SKILL.md",
+      "computedHash": "9d5a96b1a804f9d990a0789ed621c619f6acbb2fe93a9dd665a34c967c18d560"
+    },
+    "maui-app-lifecycle": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-maui/skills/maui-app-lifecycle/SKILL.md",
+      "computedHash": "dc7bd92ede8a9612882d0c4b345154b885ccd14e86ee4efb69cb1ea67c5114c6"
+    },
+    "maui-collectionview": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-maui/skills/maui-collectionview/SKILL.md",
+      "computedHash": "8b2bca01b88b5668886d0b771e65152f8a843e03442937d983c9de9bb531819c"
+    },
+    "maui-data-binding": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-maui/skills/maui-data-binding/SKILL.md",
+      "computedHash": "cccf25a1fed696c8f752c2ef8e2aa2e77dd85e15fed9bc82081c18e69097ce52"
+    },
+    "maui-dependency-injection": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-maui/skills/maui-dependency-injection/SKILL.md",
+      "computedHash": "c5d7e12070f3cf9da704f809b4d356ed390b21e04495d59cbe981e473159df56"
+    },
+    "maui-safe-area": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-maui/skills/maui-safe-area/SKILL.md",
+      "computedHash": "2e4dc29dbbc9d61448953f527756b530b64b629f0cf4b1f161a64254324d7ec2"
+    },
+    "maui-shell-navigation": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-maui/skills/maui-shell-navigation/SKILL.md",
+      "computedHash": "96bc6fa4dfebc776857a6132d9b98d6045274ce901372ec5c99bff7fd519d04d"
+    },
+    "maui-theming": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-maui/skills/maui-theming/SKILL.md",
+      "computedHash": "4555cfdd28288d62628ebea061a4a4715baeb007a5a5b9e45896aadeafbf940f"
+    },
+    "mcp-csharp-create": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-ai/skills/mcp-csharp-create/SKILL.md",
+      "computedHash": "ab3143dcac9e10c1665f9e6196f3bff76ee40d900e3f5110ac9473eb6924cbec"
+    },
+    "mcp-csharp-debug": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-ai/skills/mcp-csharp-debug/SKILL.md",
+      "computedHash": "7ea4cdb67d450faae9d05d3703bc390f2bf3eef10b0e0e0e0348cf136fc437a5"
+    },
+    "mcp-csharp-publish": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-ai/skills/mcp-csharp-publish/SKILL.md",
+      "computedHash": "d52fc327b400c65744f06d0ade3fe385021b7da4f7dcb49f2c44b2bd0d63777e"
+    },
+    "mcp-csharp-test": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-ai/skills/mcp-csharp-test/SKILL.md",
+      "computedHash": "442198776794182a6e60f50f0fd1fc3fb8ec2a66a6b97a4a7125c2c04ce833b5"
+    },
+    "microbenchmarking": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-diag/skills/microbenchmarking/SKILL.md",
+      "computedHash": "65ffc10345922263e0331e45018720d10ad51e0fd08f47674fc808ce1685ecd0"
+    },
+    "migrate-dotnet10-to-dotnet11": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-upgrade/skills/migrate-dotnet10-to-dotnet11/SKILL.md",
+      "computedHash": "3fa7c85616bd3d58eb2dae5c8b6afaf61c50d14e2671a16473b731be24df9c86"
+    },
+    "migrate-dotnet8-to-dotnet9": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-upgrade/skills/migrate-dotnet8-to-dotnet9/SKILL.md",
+      "computedHash": "37628ac363d274539adb8ed7318c796cd9bcab9ead9a6b74776c5aa0b907215e"
+    },
+    "migrate-dotnet9-to-dotnet10": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-upgrade/skills/migrate-dotnet9-to-dotnet10/SKILL.md",
+      "computedHash": "74bfbd47dbc5a89dc2bc9c86c04429bd687e401fde96a00691e5765f998fcacc"
+    },
+    "migrate-mstest-v1v2-to-v3": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/migrate-mstest-v1v2-to-v3/SKILL.md",
+      "computedHash": "10aa66ccb22529253f768f2035b15b6f828a27e63edf3cffa95c98c726ffdbf4"
+    },
+    "migrate-mstest-v3-to-v4": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/migrate-mstest-v3-to-v4/SKILL.md",
+      "computedHash": "7b38d28a7997061518830c9353bd124b83e485fda028e40b5e9efbf60bfa6080"
+    },
+    "migrate-nullable-references": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-upgrade/skills/migrate-nullable-references/SKILL.md",
+      "computedHash": "dd10c50d8e8ae7928e7fcc5b6e25920e6953d6f065001ee8c0ca3b1119dd1735"
+    },
+    "migrate-static-to-wrapper": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/migrate-static-to-wrapper/SKILL.md",
+      "computedHash": "d78350744cdd6ec602b3cc6a8db66cf984c4d2879d599b05b55a28c6633d5eaa"
+    },
+    "migrate-vstest-to-mtp": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/migrate-vstest-to-mtp/SKILL.md",
+      "computedHash": "a864eddb5f894e452ef0071c0718bcbd06e9391b4a48968c719587e00640236d"
+    },
+    "migrate-xunit-to-xunit-v3": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/migrate-xunit-to-xunit-v3/SKILL.md",
+      "computedHash": "3e5ced18eb8a27e53aa842c3d968f0181288a025c94ce1be8b9867b911380d2f"
+    },
+    "minimal-api-file-upload": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-aspnet/skills/minimal-api-file-upload/SKILL.md",
+      "computedHash": "6337dc97546815a5f19a73fcf80b0a20164e961768540a12403664b8e1625849"
+    },
+    "msbuild-antipatterns": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/msbuild-antipatterns/SKILL.md",
+      "computedHash": "f01352ad878941a2f825de76c7cd3057379738390fd5349af066844bc995dc3d"
+    },
+    "msbuild-modernization": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/msbuild-modernization/SKILL.md",
+      "computedHash": "084ed8f2fc3bbeaa7afc2fdac0dff30ad30a56b244bbd684f752a820589c0d79"
+    },
+    "msbuild-server": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/msbuild-server/SKILL.md",
+      "computedHash": "48c12f492b89be42db52934f0730aa871e9420bb18e1b69b1f8bab7f63b8a9f0"
+    },
+    "mtp-hot-reload": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/mtp-hot-reload/SKILL.md",
+      "computedHash": "226300ae9c6dd6cb83deb539232a7ae5cca895aa5cb8599eea789b6b0c949e9c"
+    },
+    "next-best-practices": {
+      "source": "vercel-labs/next-skills",
+      "sourceType": "github",
+      "skillPath": "skills/next-best-practices/SKILL.md",
+      "computedHash": "f4678aef4ffc10a5ea64a91e57abe5a5081af813b06d58d565caf3e8ef56e26c"
+    },
+    "next-cache-components": {
+      "source": "vercel-labs/next-skills",
+      "sourceType": "github",
+      "skillPath": "skills/next-cache-components/SKILL.md",
+      "computedHash": "f835d8226c28abf012cc013928e2627c8a7a046de61127ef229be1711bd1f255"
+    },
+    "next-upgrade": {
+      "source": "vercel-labs/next-skills",
+      "sourceType": "github",
+      "skillPath": "skills/next-upgrade/SKILL.md",
+      "computedHash": "e3aeb1f9e8a68d24df0c1c2e3c8ab97ede09a7251a2c76988318d02254346979"
+    },
+    "nuget-trusted-publishing": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet/skills/nuget-trusted-publishing/SKILL.md",
+      "computedHash": "cfe94d9ea3cc0cc2107eff8114dcf945778a0b24b4cc5205d365e3b8efa059cf"
+    },
+    "optimizing-ef-core-queries": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-data/skills/optimizing-ef-core-queries/SKILL.md",
+      "computedHash": "265a890a57f60bf55d79fb92483176aca3c6e5c88c23cd75d18911e8354d0e87"
+    },
+    "package-script-writer": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/package-script-writer/SKILL.md",
+      "computedHash": "a7954826ecf599d055d8db3a5b0469b3cb89b0f8b9244260992a1ec7beb51bc3"
+    },
+    "platform-detection": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/platform-detection/SKILL.md",
+      "computedHash": "0775da9900374a0bd416f11b1c39d4e4e346c79f407687800c07a6e8b3d05f06"
+    },
+    "resolve-project-references": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-msbuild/skills/resolve-project-references/SKILL.md",
+      "computedHash": "a4c9a15ee2a47bb9c30fea98393efe5a739b82840137566413e807da763766e8"
+    },
+    "run-tests": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/run-tests/SKILL.md",
+      "computedHash": "49f264597359379b0a4029d22fd8b61d97dca23c410c810330751ba66e91fba4"
+    },
+    "shadcn": {
+      "source": "shadcn/ui",
+      "sourceType": "github",
+      "skillPath": "skills/shadcn/SKILL.md",
+      "computedHash": "f0fdd03f4755cbb3b57e20fe6fd4a97c00d34e6780187b6559316986e8d848db"
+    },
+    "system-text-json-net11": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet11/skills/system-text-json-net11/SKILL.md",
+      "computedHash": "cd81a038e5dc72a2c167e24806d073f97788bb8af07aa0c0cacade9fe9566f93"
+    },
+    "technology-selection": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-ai/skills/technology-selection/SKILL.md",
+      "computedHash": "c8435a1a137b7b49ba672060eabd904a8cabe586ac9d1e87327c80e97597cbdf"
+    },
+    "template-authoring": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-template-engine/skills/template-authoring/SKILL.md",
+      "computedHash": "347b9329396313abd03da14b34c7287eb0a7afe875c7b6819a8b86d8975b7413"
+    },
+    "template-discovery": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-template-engine/skills/template-discovery/SKILL.md",
+      "computedHash": "f045ff486a276d28cd7dbdf13de3f2dfcf8a925ff06027b18d2cece6ff01345d"
+    },
+    "template-instantiation": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-template-engine/skills/template-instantiation/SKILL.md",
+      "computedHash": "e941b75c565fffe92b6067577fdcb59be4959261aa3807a629080f8661be60ea"
+    },
+    "template-validation": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-template-engine/skills/template-validation/SKILL.md",
+      "computedHash": "b1814d5c06fc52e259d45df479ac74019bc7ca41c42bdcdaada130b3ebfb8918"
+    },
+    "test-anti-patterns": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/test-anti-patterns/SKILL.md",
+      "computedHash": "58f0e2600bfdd23fac5cf7bf5cdc379fd4452846bb61cb80fd6a5948783509ca"
+    },
+    "test-gap-analysis": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/test-gap-analysis/SKILL.md",
+      "computedHash": "ec69079543d1720ec606fa702cf758d6be2b2a88b0a504440f6f1a07fe9d3673"
+    },
+    "test-smell-detection": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/test-smell-detection/SKILL.md",
+      "computedHash": "656c838ad6ac1686ec0c1e35a85c8e879c192e4d3224e210aed9127c2366f3f4"
+    },
+    "test-tagging": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/test-tagging/SKILL.md",
+      "computedHash": "c64f1e3fec741c0c6635673083a0cfdda82cc728812ab935f2e269c4b7bd075b"
+    },
+    "thread-abort-migration": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-upgrade/skills/thread-abort-migration/SKILL.md",
+      "computedHash": "e7a95dddebf28dc7aaf70acc41e94332739c4da296147cae6cae633e0ba21069"
+    },
+    "umbraco-add-extension-reference": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-add-extension-reference/SKILL.md",
+      "computedHash": "a64c0842ed6e9cc7e93c187c8a1995703167b37ed3c892d28476e90d4a749d77"
+    },
+    "umbraco-auth-provider": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-auth-provider/SKILL.md",
+      "computedHash": "6edd8a398057949c6117ceb66957dfcf2ab0be0a40e2fe5857f6bec51f38273b"
+    },
+    "umbraco-backoffice": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-backoffice/SKILL.md",
+      "computedHash": "1daae606f0adfbef50cbc532b4f5164a15a20788ad736cbaf4d6296eb8fa3644"
+    },
+    "umbraco-block-editor-custom-view": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-block-editor-custom-view/SKILL.md",
+      "computedHash": "495afc46a300d951ab2e6a6ab80848111c3f95ae9be0c9efae2204a7359a24d9"
+    },
+    "umbraco-bundle": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-bundle/SKILL.md",
+      "computedHash": "d89d7e888739ef0d67e8abdb58f17596e79cacff6782333925ce3f676c0b019a"
+    },
+    "umbraco-collection": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-collection/SKILL.md",
+      "computedHash": "b8bfb952f30197272e7574d3fbc9dc1a4e7e77390a09feafb6903c4e7969130e"
+    },
+    "umbraco-collection-action": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-collection-action/SKILL.md",
+      "computedHash": "b2718c5827a0f38a717c8b17a2dac6b93f3cd511345c752eec3e484f0159c309"
+    },
+    "umbraco-collection-view": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-collection-view/SKILL.md",
+      "computedHash": "9095e828b4837290cc812fc8518afa7cf036e0c09bf6f0fbf3232299b5e2f6a0"
+    },
+    "umbraco-conditions": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-conditions/SKILL.md",
+      "computedHash": "acad7d236f0f59cf229f299807b2a0e9021ab96e3ab05bbbd66ba8b06df71027"
+    },
+    "umbraco-context-api": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-context-api/SKILL.md",
+      "computedHash": "58ba88412d1da4bbb730835e125152957b89c52c508b4a954acb731bad942a6a"
+    },
+    "umbraco-controllers": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-controllers/SKILL.md",
+      "computedHash": "126b1e62097b79d469c90240577fb030dbb3ccdc687c167f4f85900590cbf54a"
+    },
+    "umbraco-current-user-action": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-current-user-action/SKILL.md",
+      "computedHash": "dff912a175c499ff256ceeceae55a34f3b1eec4ae6b79e064ab06e51889e1c55"
+    },
+    "umbraco-dashboard": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-dashboard/SKILL.md",
+      "computedHash": "c44a33929851111c5e15fc131665d1c11a731403b193417cddf30f3f27ec6ad0"
+    },
+    "umbraco-dynamic-root": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-dynamic-root/SKILL.md",
+      "computedHash": "669173563bf4896513a949f5649a1aaee723db03d11a5b0dd615ec3891d45b98"
+    },
+    "umbraco-e2e-testing": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-testing-skills/skills/umbraco-e2e-testing/SKILL.md",
+      "computedHash": "1a1e0c15796aedfa53ba6c0cd6761f85a5ebe4776494795e7e40dfa229920c11"
+    },
+    "umbraco-entity-actions": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-entity-actions/SKILL.md",
+      "computedHash": "e24320265354b654d522b09c97a88b5cd8b37963a091fe2d9e610acd257464ab"
+    },
+    "umbraco-entity-bulk-actions": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-entity-bulk-actions/SKILL.md",
+      "computedHash": "39bce3707a8a361e7e277e88d629e74e354da18aa0656b0d2187864d6c923c18"
+    },
+    "umbraco-entity-create-option-action": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-entity-create-option-action/SKILL.md",
+      "computedHash": "d512d0c8e2b45dd147421d22da08da936ba48bb995a8a82bc9ad5759d34cae22"
+    },
+    "umbraco-entry-point": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-entry-point/SKILL.md",
+      "computedHash": "763b3be5c2ef2b008f9410a5f6c3792d02832fcbfbae7bd0555ab01474e34583"
+    },
+    "umbraco-example-generator": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-testing-skills/skills/umbraco-example-generator/SKILL.md",
+      "computedHash": "f56f6c2adac41621e7d6fb739b3ae829044b33dc8cc0d7f7221f2ec0d791ab97"
+    },
+    "umbraco-extension-registry": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-extension-registry/SKILL.md",
+      "computedHash": "be5ea9fe6cf2822f3f605844e9e91e45dba3d6c54ca434e411d591b2d1c53597"
+    },
+    "umbraco-extension-template": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-extension-template/SKILL.md",
+      "computedHash": "928c886199b37201f613cb05882a3ba3bd8244bf8b6f2f93c6f54b1a90586dd8"
+    },
+    "umbraco-file-upload-preview": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-file-upload-preview/SKILL.md",
+      "computedHash": "c5ab83ca732d6b0c455a10b4589426b9f56f304b9da0a2e492709addda0f8d01"
+    },
+    "umbraco-global-context": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-global-context/SKILL.md",
+      "computedHash": "b9cf84067b566354e7b2458f73d2d9d8b0a8388e0aa7ede2b451aafae080c527"
+    },
+    "umbraco-granular-user-permissions": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-granular-user-permissions/SKILL.md",
+      "computedHash": "9713b971af6a965a2d3f05394adcf33c27ce78a71e096a0a2d8af044a4e622b5"
+    },
+    "umbraco-header-apps": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-header-apps/SKILL.md",
+      "computedHash": "61775052ba957b23c265568f529b6ce03877810a6b25da0da77d1da38db692d2"
+    },
+    "umbraco-health-check": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-health-check/SKILL.md",
+      "computedHash": "463ed34e31ac621649c2a5e38adeecc9bf59fd7500b77a3c10b9810aa93c6c79"
+    },
+    "umbraco-icons": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-icons/SKILL.md",
+      "computedHash": "01fbe9051da9b2d724e4ffc6fbace6650a992793e5dc6d22d760352fab4d4cbc"
+    },
+    "umbraco-kinds": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-kinds/SKILL.md",
+      "computedHash": "416ac68cd249d9986fbbd4718fce33cd20612c9f722c64bc1731b286d2cd454e"
+    },
+    "umbraco-localization": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-localization/SKILL.md",
+      "computedHash": "cd287e516c3c1f8417a8b27449e6b3e8c6d6089f3765797b0a81411ad90f81b4"
+    },
+    "umbraco-manifest-picker": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-manifest-picker/SKILL.md",
+      "computedHash": "ac75d53984010fdc17c9c00bf736b5e83233e76bda35996f223745b95c83a8c0"
+    },
+    "umbraco-menu": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-menu/SKILL.md",
+      "computedHash": "d5a910f09af64ad89c9f0b265ce1b90f3fe6ee4d6214590081fde83444dd78eb"
+    },
+    "umbraco-menu-items": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-menu-items/SKILL.md",
+      "computedHash": "5551778f117f8ab31f878c9346891739b80e6d85d53802ab16e66f54ba3a2d8b"
+    },
+    "umbraco-mfa-login-provider": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-mfa-login-provider/SKILL.md",
+      "computedHash": "9a333d7fee6a2375be174ab8633c06380f73cb224b86d08853c5883c8d3e3271"
+    },
+    "umbraco-mocked-backoffice": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-testing-skills/skills/umbraco-mocked-backoffice/SKILL.md",
+      "computedHash": "3ad87525e46db9d65659c0dcf39e9c17f6a1555bb229543c6878b93f094c28ba"
+    },
+    "umbraco-modals": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-modals/SKILL.md",
+      "computedHash": "b98a65bc5150f2129aad362cc2ce04d7437067fba8532118b66a7981b1c14627"
+    },
+    "umbraco-monaco-markdown-editor-action": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-monaco-markdown-editor-action/SKILL.md",
+      "computedHash": "5a4384e185863a8eb757768f497284a331faca3382c3f864cf5f8008527dfd65"
+    },
+    "umbraco-msw-testing": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-testing-skills/skills/umbraco-msw-testing/SKILL.md",
+      "computedHash": "9e5dca805024940c011dc9e72323d305fbe3f0422524793dad2e4688d7845a20"
+    },
+    "umbraco-notifications": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-notifications/SKILL.md",
+      "computedHash": "5ddbc7332d595094635f91c8e3b8383e0c0b3a74bf083940608c438b6acdd591"
+    },
+    "umbraco-openapi-client": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-openapi-client/SKILL.md",
+      "computedHash": "2e16ec9b7145019b058bc749a12bd0507a7f6cdb6ebd6b63de9cd47c121695de"
+    },
+    "umbraco-package-view": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-package-view/SKILL.md",
+      "computedHash": "0fce7a54bcc4bae726852ac8c4864654ad6ae7b7750bc353c08c182f9374f72a"
+    },
+    "umbraco-picker-data-source": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-picker-data-source/SKILL.md",
+      "computedHash": "f42d14ab0ec124214046329a361cd94d66ddd8940b87b061e5e1914093214f84"
+    },
+    "umbraco-playwright-testhelpers": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-testing-skills/skills/umbraco-playwright-testhelpers/SKILL.md",
+      "computedHash": "828099c36a95f9bc095418e145e2f02f01bc35c09a170be56821de4c52ce188a"
+    },
+    "umbraco-preview-app-provider": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-preview-app-provider/SKILL.md",
+      "computedHash": "459f2346a65519ed2ee9cbe944204ddd913648076285ec0c2f5243c9fbbbe63b"
+    },
+    "umbraco-property-action": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-property-action/SKILL.md",
+      "computedHash": "70f936c4e4e98069a6451fa248967cd2e09ba465601db7b85f360a4e410b8a7d"
+    },
+    "umbraco-property-editor-schema": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-property-editor-schema/SKILL.md",
+      "computedHash": "0b6e2c235bec8cfed54429087d40692e1a4f4a500c19480bda868916614c7b55"
+    },
+    "umbraco-property-editor-ui": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-property-editor-ui/SKILL.md",
+      "computedHash": "6f00e3e24c1057bb7a5f333255e48709eafaa7c84afea4fcc3d30dfc863d9484"
+    },
+    "umbraco-property-value-preset": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-property-value-preset/SKILL.md",
+      "computedHash": "4bbafd9f0877d7416b36874c862b8c851dd4438c94ac01044154839b236f93c8"
+    },
+    "umbraco-quickstart": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-quickstart/SKILL.md",
+      "computedHash": "fed7290f9716d3f58e4786e4fd0b035a53c837ef2747dd25c314ae6a41c09f52"
+    },
+    "umbraco-repository-pattern": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-repository-pattern/SKILL.md",
+      "computedHash": "e334097925e8ad85464fa64d93f988d705ab83c4aa877a34d52611306b7c6896"
+    },
+    "umbraco-review-checks": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-review-checks/SKILL.md",
+      "computedHash": "ccb6625d6c1793ffdd76207869f9656611d264e9cb043b4686f2e2f7c4f8e137"
+    },
+    "umbraco-routing": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-routing/SKILL.md",
+      "computedHash": "a613c549dd3410ebf3f5308bb9bf21ade51f0b6a87ef9a036d21d8316ab9bcbb"
+    },
+    "umbraco-search-provider": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-search-provider/SKILL.md",
+      "computedHash": "26cab4c74333ed0fbfd46330915ae2854c648e6733b2c746a37d072e04dee71b"
+    },
+    "umbraco-search-result-item": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-search-result-item/SKILL.md",
+      "computedHash": "fc4bf411a3b4473d7091cec64973a7eed8b2ded587f25011fc8d2a98d14da6ad"
+    },
+    "umbraco-sections": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-sections/SKILL.md",
+      "computedHash": "b3ad15bf7659a8545eed2c27fa14d25265ee45a5d5dd6d7b2afa16246d7a6217"
+    },
+    "umbraco-skill-code-analyzer": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/umbraco-skill-code-analyzer/SKILL.md",
+      "computedHash": "a7d21db4147e506a44eebe83a1399beb979f59ae3270416c580452346de9f8ee"
+    },
+    "umbraco-skill-test-runner": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/umbraco-skill-test-runner/SKILL.md",
+      "computedHash": "b80d95722c7d22eafc05119a4cb8dca62b32b8f167db1a6d389d7df5e7421111"
+    },
+    "umbraco-skill-validator": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/umbraco-skill-validator/SKILL.md",
+      "computedHash": "bd8b3a775b18cd1fe2971abf2dedba28fd1f2725cac9573f773520d11a97ef1f"
+    },
+    "umbraco-sorter": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-sorter/SKILL.md",
+      "computedHash": "26ad8c8dab55f15a7b96585f68614024710a38aa5aa62e4ff2dc84e80e6cb159"
+    },
+    "umbraco-state-management": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-state-management/SKILL.md",
+      "computedHash": "5ce2ec49fbbcb5e4027b385cde140c04bb4660cdf8fdd1a565ac88cb79431116"
+    },
+    "umbraco-test-builders": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-testing-skills/skills/umbraco-test-builders/SKILL.md",
+      "computedHash": "426551d010c6dbaec8774670174629baeb80b9b90212ebdf18a7176760619014"
+    },
+    "umbraco-testing": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-testing-skills/skills/umbraco-testing/SKILL.md",
+      "computedHash": "5bf2e112a60ff5d1d983de83197dd63f731771d3d9aa02f243650b159a89ffca"
+    },
+    "umbraco-theme": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-theme/SKILL.md",
+      "computedHash": "7c064126d9a95922024c6cd682e37c2dc4d181c40f0210e04b81630bbda9f9b3"
+    },
+    "umbraco-tiptap-extension": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-tiptap-extension/SKILL.md",
+      "computedHash": "94fd3ae10ee5497a9a25fd614b952ca2dc4a573b980b45bc384ec7b0e9e09b16"
+    },
+    "umbraco-tiptap-statusbar-extension": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-tiptap-statusbar-extension/SKILL.md",
+      "computedHash": "6e507ba3033e37eaa55ab5127c333a3d7e8e7b1fe737b1c1db0a97a33345d82e"
+    },
+    "umbraco-tiptap-toolbar-extension": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-tiptap-toolbar-extension/SKILL.md",
+      "computedHash": "c0518e9d3ccade993a66d59d1cd9621c896199a1dd27a96b80aa6daf3c48182c"
+    },
+    "umbraco-tree": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-tree/SKILL.md",
+      "computedHash": "2abdb82e259cf9c0524f5bb47cb918106ee93b039b9bb9de63eda9540c9c0f4b"
+    },
+    "umbraco-tree-item": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-tree-item/SKILL.md",
+      "computedHash": "8ad371dd3d982758eea24baf5f89dd376b13687a933515869fa7de728d6fb649"
+    },
+    "umbraco-ufm-component": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-ufm-component/SKILL.md",
+      "computedHash": "142cf650c7d7a35464d518bc57adbc839421814bdae2bc9ce9fdb2ac44b954ef"
+    },
+    "umbraco-umbraco-element": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-umbraco-element/SKILL.md",
+      "computedHash": "227b9fde703e5f2427bfd55c037dd63b7fa6ea646087fa43c41d36f28b4f4db3"
+    },
+    "umbraco-unit-testing": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-testing-skills/skills/umbraco-unit-testing/SKILL.md",
+      "computedHash": "43810bd8cba364b2814fdf0cfcac09e18cbf175615140768f6a632708e3ee56c"
+    },
+    "umbraco-user-profile-app": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-user-profile-app/SKILL.md",
+      "computedHash": "511c9e638c12cfaafe7a0b04b0b2c9bde3c7a9948b8d33e816f0e18ec2875e4e"
+    },
+    "umbraco-validation-checks": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-validation-checks/SKILL.md",
+      "computedHash": "f2fab9b26a257276227c43b87c5eb68d59b308e1755b4fe86d387616e6aba8e1"
+    },
+    "umbraco-validation-context": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-validation-context/SKILL.md",
+      "computedHash": "b81e4c8b805698ca4e057632cdafb3247ddbf2a37598ec752d7d88b2983df000"
+    },
+    "umbraco-workspace": {
+      "source": "umbraco/Umbraco-CMS-Backoffice-Skills",
+      "sourceType": "github",
+      "skillPath": "plugins/umbraco-backoffice-skills/skills/umbraco-workspace/SKILL.md",
+      "computedHash": "8f1e91e1513dafe483aea0e612979478663a28373ff359f7f2d74c9a400e015a"
+    },
+    "writing-mstest-tests": {
+      "source": "dotnet/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/dotnet-test/skills/writing-mstest-tests/SKILL.md",
+      "computedHash": "cbf88dfad4d2fa82b6fbadd08dcb578375533f3ea855c5588857e93c315a5689"
+    }
+  }
+}
