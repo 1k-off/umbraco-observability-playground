@@ -64,8 +64,43 @@ prometheus.remote_write "mimir" {
   }
 }
 
+discovery.relabel "demo_pod_logs" {
+  targets = discovery.kubernetes.pods.targets
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+    target_label  = "service_name"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    target_label  = "pod"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "namespace"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_container_name"]
+    target_label  = "container"
+  }
+}
+
 loki.source.kubernetes "demo_pods" {
-  targets    = discovery.kubernetes.pods.targets
+  targets    = discovery.relabel.demo_pod_logs.output
+  forward_to = [loki.process.demo_pods.receiver]
+}
+
+// CMS: Serilog JSON with trace_id; web: plain Next.js logs (json stage is best-effort).
+loki.process "demo_pods" {
+  stage.json {
+    expressions = {
+      trace_id = "trace_id",
+    }
+  }
+
   forward_to = [loki.write.daemon.receiver]
 }
 

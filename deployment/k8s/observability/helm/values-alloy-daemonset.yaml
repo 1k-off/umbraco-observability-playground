@@ -1,5 +1,6 @@
 # Grafana Alloy — DaemonSet: Kubernetes pod logs for demo-services.
 # River config source of truth: observability/alloy/config-daemonset.alloy
+# Keep this file in sync with that .alloy file (Helm embeds config here).
 #
 # helm upgrade --install alloy grafana/alloy -n observability -f values-alloy-daemonset.yaml
 
@@ -35,8 +36,92 @@ alloy:
         }
       }
 
+      discovery.relabel "scrape_pods" {
+        targets = discovery.kubernetes.pods.targets
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+          regex         = "true"
+          action        = "keep"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port"]
+          action        = "replace"
+          target_label  = "__meta_kubernetes_pod_container_port_number"
+          regex         = "(.+)"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+          action        = "replace"
+          target_label  = "__metrics_path__"
+          regex         = "(.+)"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label  = "namespace"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label  = "pod"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+          target_label  = "service"
+        }
+      }
+
+      prometheus.scrape "demo_apps" {
+        targets    = discovery.relabel.scrape_pods.output
+        forward_to = [prometheus.remote_write.mimir.receiver]
+      }
+
+      prometheus.remote_write "mimir" {
+        endpoint {
+          url = "http://mimir-gateway.observability.svc.cluster.local/api/v1/push"
+        }
+      }
+
+      discovery.relabel "demo_pod_logs" {
+        targets = discovery.kubernetes.pods.targets
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+          target_label  = "service_name"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label  = "pod"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label  = "namespace"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label  = "container"
+        }
+      }
+
       loki.source.kubernetes "demo_pods" {
-        targets    = discovery.kubernetes.pods.targets
+        targets    = discovery.relabel.demo_pod_logs.output
+        forward_to = [loki.process.demo_pods.receiver]
+      }
+
+      loki.process "demo_pods" {
+        stage.json {
+          expressions = {
+            trace_id = "trace_id",
+          }
+        }
+
         forward_to = [loki.write.daemon.receiver]
       }
 

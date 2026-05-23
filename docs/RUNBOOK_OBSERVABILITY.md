@@ -99,7 +99,7 @@ kubectl apply -f deployment/k8s/observability/alloy/gateway-service.yaml
 
 3. **Verify** (Grafana Explore):
    - Tempo: `{ resource.service.name = "umbraco-web" }` → child span to `umbraco-cms`
-   - Loki: JSON log line with `trace_id` from CMS (`{service_name="umbraco-cms"} | json`)
+   - Loki: CMS JSON with `trace_id` — `{service_name="demo-umbraco"} | json` (label from pod `app.kubernetes.io/name`, not OTel `service.name`)
    - Mimir: `traces_spanmetrics_latency_bucket` or OTel HTTP metrics for both services
    - Pyroscope: `umbraco-cms` / `umbraco-web` profiles after a few page loads
    - Faro: sessions after opening the public web UI (collector via `https://<web>/api/faro` → alloy-gateway:12347)
@@ -114,10 +114,65 @@ kubectl apply -f deployment/k8s/observability/alloy/gateway-service.yaml
 | Pyroscope Node | `PYROSCOPE_SERVER_ADDRESS` in `instrumentation.node.ts` | pyroscope:4040 |
 | Pod logs | stdout JSON (CMS) | Alloy DaemonSet → Loki |
 
+## Loki: which labels exist?
+
+`loki.source.kubernetes` does **not** use OTel `service.name`. Until relabel is deployed, streams are often only:
+
+```logql
+{job="loki.source.kubernetes.demo_pods"}
+```
+
+After DaemonSet relabel (see `config-daemonset.alloy`):
+
+```logql
+{namespace="demo-services", service_name="demo-umbraco"}
+{namespace="demo-services", service_name="demo-umbr-fe"}
+```
+
+CMS Serilog JSON + `trace_id` (do not require `| json` until lines appear):
+
+```logql
+{service_name="demo-umbraco"} |= "trace_id"
+```
+
+**Helm:** `values-alloy-daemonset.yaml` must match `observability/alloy/config-daemonset.alloy`. If they diverge, `helm upgrade` keeps an old inline config and `namespace`/`pod` queries return nothing.
+
+**Diagnostics:**
+
+```bash
+kubectl -n observability get pods -l app.kubernetes.io/name=alloy
+kubectl -n observability logs ds/alloy --tail=30
+kubectl -n demo-services logs deploy/demo-umbraco --tail=5
+```
+
+In Grafana → Loki → Label browser: start from `job`, then `service_name` / `pod` / `namespace`.
+
+## Mimir: find real metric names
+
+OTel → Prometheus names rarely match `http_server_request_duration_seconds_count`. Discover first:
+
+```promql
+topk(20, count by (__name__) ({__name__=~".*http.*"}))
+count by (__name__, service_name) ({__name__=~".*http.*"})
+```
+
+Use the `__name__` and `service_name` values from that table, e.g.:
+
+```promql
+rate(<exact_name_from_table>{service_name="<exact_value>"}[5m])
+```
+
+Span metrics (if Tempo metrics generator is on):
+
+```promql
+sum(rate(traces_spanmetrics_calls_total{service=~"umbraco.*"}[5m])) by (service)
+```
+
 ## Troubleshooting
 
 | Symptom | Check |
 |---------|--------|
+| Loki: no logs with `namespace`/`pod` | Query `{job="loki.source.kubernetes.demo_pods"}`; sync + `helm upgrade alloy` DaemonSet config |
 | mimir-gateway / loki-gateway nginx: `host not found in resolver "kube-dns..."` | Set `global.dnsService` to your cluster DNS Service (`kubectl get svc -n kube-system`). **RKE2:** `rke2-coredns-rke2-coredns` (see [values-mimir.yaml](../deployment/k8s/observability/helm/values-mimir.yaml)). Then `helm upgrade mimir ...` |
 | Loki install: `more than zero replicas` for single binary and scalable | In [values-loki.yaml](../deployment/k8s/observability/helm/values-loki.yaml) set `write`/`read`/`backend` `replicas: 0` with `singleBinary.replicas: 1` |
 | Tempo: `Access Key Id ... does not exist` | Chart must set `tempo.extraArgs.config.expand-env: "true"` and `tempo.extraEnv` from `minio-credentials` ([values-tempo.yaml](../deployment/k8s/observability/helm/values-tempo.yaml)); Secret must match running MinIO |

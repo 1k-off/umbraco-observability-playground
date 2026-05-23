@@ -4,7 +4,8 @@ const alloyFaroBase =
   process.env.FARO_COLLECTOR_UPSTREAM ?? "http://alloy-gateway.observability.svc.cluster.local:12347";
 
 async function proxy(request: NextRequest, pathSegments: string[] | undefined) {
-  const suffix = pathSegments?.length ? `/${pathSegments.join("/")}` : "";
+  // Faro SDK posts to the collector URL; Alloy faro.receiver serves /collect.
+  const suffix = pathSegments?.length ? `/${pathSegments.join("/")}` : "/collect";
   const target = new URL(`${alloyFaroBase.replace(/\/$/, "")}${suffix}`);
 
   request.nextUrl.searchParams.forEach((value, key) => {

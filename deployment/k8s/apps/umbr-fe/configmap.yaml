@@ -13,7 +13,8 @@ data:
   # BFF + SSR fetch (public CMS URL — media URLs in HTML must be browser-reachable)
   CMS_BASE_URL: "https://demo-cms.1node.tech"
   NEXT_PUBLIC_SITE_URL: "https://demo-umbr-fe.1node.tech"
-  FARO_COLLECTOR_URL: "https://demo-umbr-fe.1node.tech/api/faro"
+  # Include /collect so the SDK matches Alloy faro.receiver (BFF still maps /api/faro → upstream /collect).
+  FARO_COLLECTOR_URL: "https://demo-umbr-fe.1node.tech/api/faro/collect"
   NEXT_PUBLIC_DEPLOYMENT_ENVIRONMENT: "demo"
   OTEL_SERVICE_NAME: "umbraco-web"
   OTEL_DEPLOYMENT_ENVIRONMENT: "demo"
