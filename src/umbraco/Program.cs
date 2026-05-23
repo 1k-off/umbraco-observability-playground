@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Serilog;
+using Serilog.Events;
 using UmbracoMonitoring.Configuration;
 using UmbracoMonitoring.Extensions;
 using UmbracoMonitoring.Logging;
@@ -48,6 +49,20 @@ builder.CreateUmbracoBuilder()
 WebApplication app = builder.Build();
 
 app.UseForwardedHeaders();
+app.UseSerilogRequestLogging(options =>
+{
+    options.GetLevel = (context, _, exception) =>
+    {
+        if (exception is not null)
+        {
+            return LogEventLevel.Error;
+        }
+
+        return ProbePathFilters.IsProbePath(context.Request.Path)
+            ? LogEventLevel.Debug
+            : LogEventLevel.Information;
+    };
+});
 app.UseMiddleware<RequestIdMiddleware>();
 app.UseResponseCompression();
 

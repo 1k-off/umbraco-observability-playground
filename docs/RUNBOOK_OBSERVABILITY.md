@@ -288,7 +288,7 @@ Open the trace waterfall — expand CMS `GET` / Delivery API spans and SQL (`SEL
 | Symptom | Check |
 |---------|--------|
 | Loki: no logs with `namespace`/`pod` | Query `{job="loki.source.kubernetes.demo_pods"}`; sync + `helm upgrade alloy` DaemonSet config |
-| Loki CMS: `trace_id` filter empty | Serilog uses **`TraceId`** (PascalCase): `{service_name="demo-umbraco"} \|= "TraceId"` |
+| Loki CMS: trace filter empty | Use **`trace_id`** or substring: `{service_name="demo-umbraco"} \|= "<traceId>"`; see [run-docs/11-logs-and-trace-correlation.md](../run-docs/11-logs-and-trace-correlation.md) |
 | Tempo OOM / Grafana errors | `kubectl -n observability logs statefulset/tempo --tail=50` (STS, not Deployment) |
 | Web: no Mimir/Pyroscope | Next hook: `src/instrumentation.ts`; pod log should show `[obs] starting Node OTel` |
 | FE Loki: fsnotify spam | `WATCHPACK_POLLING` in ConfigMap + `docker-entrypoint.sh` ulimit; query `!= "fsnotify"` |

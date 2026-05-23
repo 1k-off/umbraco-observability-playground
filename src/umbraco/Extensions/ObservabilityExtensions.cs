@@ -4,6 +4,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Pyroscope.OpenTelemetry;
 using UmbracoMonitoring.Configuration;
+using UmbracoMonitoring.Logging;
 using UmbracoMonitoring.Telemetry;
 
 namespace UmbracoMonitoring.Extensions;
@@ -45,7 +46,7 @@ public static class ObservabilityExtensions
                 .AddAspNetCoreInstrumentation(instrumentation =>
                 {
                     instrumentation.Filter = context =>
-                        !IsProbePath(context.Request.Path);
+                        !ProbePathFilters.IsProbePath(context.Request.Path);
                     instrumentation.RecordException = true;
                 })
                 .AddHttpClientInstrumentation()
@@ -77,11 +78,5 @@ public static class ObservabilityExtensions
                 }));
 
         return builder;
-    }
-
-    private static bool IsProbePath(PathString path)
-    {
-        return path.StartsWithSegments("/health")
-            || path.StartsWithSegments("/ready");
     }
 }

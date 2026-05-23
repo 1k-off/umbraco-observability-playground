@@ -17,7 +17,12 @@ public sealed class TraceLogEnricher : ILogEventEnricher
             return;
         }
 
-        logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("trace_id", activity.TraceId.ToString()));
-        logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("span_id", activity.SpanId.ToString()));
+        string traceId = activity.TraceId.ToString();
+        string spanId = activity.SpanId.ToString();
+        logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("trace_id", traceId));
+        logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("span_id", spanId));
+        // PascalCase alias for LogQL/docs that used TraceId; same W3C id as Tempo.
+        logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("TraceId", traceId));
+        logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty("SpanId", spanId));
     }
 }

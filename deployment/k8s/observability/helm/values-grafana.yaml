@@ -64,6 +64,17 @@ datasources:
         editable: false
         jsonData:
           maxLines: 1000
+          derivedFields:
+            - name: TraceID
+              matcherRegex: "\"trace_id\"\\s*:\\s*\"([0-9a-f]{32})\""
+              url: "$${__value.raw}"
+              datasourceUid: tempo
+              urlDisplayLabel: View trace
+            - name: TraceID (PascalCase)
+              matcherRegex: "\"TraceId\"\\s*:\\s*\"([0-9a-f]{32})\""
+              url: "$${__value.raw}"
+              datasourceUid: tempo
+              urlDisplayLabel: View trace
       - name: Tempo
         uid: tempo
         type: tempo
@@ -77,6 +88,9 @@ datasources:
             spanEndTimeShift: "1h"
             filterByTraceID: true
             filterBySpanID: false
+            # Loki pod label is service_name=demo-umbraco, not OTel service.name=umbraco-cms.
+            customQuery: true
+            query: '{namespace="demo-services", service_name=~"demo-umbraco|demo-umbr-fe"} |= `${__trace.traceId}`'
           tracesToMetrics:
             datasourceUid: mimir
           serviceMap:
