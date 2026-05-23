@@ -1,6 +1,24 @@
 {
   "version": 1,
   "skills": {
+    "admission-control": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-app-sdk/admission-control/SKILL.md",
+      "computedHash": "03de8ae7052eaa6fd9544c7fd6cb9489077399fabb12a958386ceb4b0f09c7c2"
+    },
+    "alerting-irm": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-core/alerting-irm/SKILL.md",
+      "computedHash": "b6d993e0daa8121bf8b84069550fd63ce4660c6dbd8c5176a8ce4edf1350a838"
+    },
+    "alloy": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-core/alloy/SKILL.md",
+      "computedHash": "38945c32725b21ce1195654f7b970bfa79e03dc5f1a28000cfcced9b8a0ed060"
+    },
     "analyzing-dotnet-performance": {
       "source": "dotnet/skills",
       "sourceType": "github",
@@ -13,6 +31,12 @@
       "skillPath": "plugins/dotnet-diag/skills/android-tombstone-symbolication/SKILL.md",
       "computedHash": "c7be23945088310c5b52e6af4f6d0bf87856de33d235989f73c119fcc5988927"
     },
+    "app-sdk-concepts": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-app-sdk/app-sdk-concepts/SKILL.md",
+      "computedHash": "1e6adb53bea5f61ba7dfc5fe901f01500444d86eff875ce0f53b094c08507fd9"
+    },
     "apple-crash-symbolication": {
       "source": "dotnet/skills",
       "sourceType": "github",
@@ -24,6 +48,12 @@
       "sourceType": "github",
       "skillPath": "plugins/dotnet-test/skills/assertion-quality/SKILL.md",
       "computedHash": "3bdd374d5b0c1a7b7e57202029ad8338dde0a84334a6a3a5fc8417f1a4514057"
+    },
+    "beyla": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-core/beyla/SKILL.md",
+      "computedHash": "11f3d00b9120343ff5fb541d16de7217af46982b2b920c599614c66f5524a897"
     },
     "binlog-failure-analysis": {
       "source": "dotnet/skills",
@@ -127,6 +157,18 @@
       "skillPath": "plugins/dotnet/skills/csharp-scripts/SKILL.md",
       "computedHash": "66fc0c59515a4f8ad15546477b39ce1f3817be4ef31533404370dcb0ab77da86"
     },
+    "cue-kind-definition": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-app-sdk/cue-kind-definition/SKILL.md",
+      "computedHash": "163353d3f9ac9a0f03206f9235f83bccb2d55f21309fce4b0d16a75fca1e2c98"
+    },
+    "dashboarding": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-core/dashboarding/SKILL.md",
+      "computedHash": "69edb21aceed88dabd5702d6864dd77647d2e62bd008edd79ffc350454eecac5"
+    },
     "detect-static-dependencies": {
       "source": "dotnet/skills",
       "sourceType": "github",
@@ -199,6 +241,18 @@
       "skillPath": "plugins/dotnet-test/skills/generate-testability-wrappers/SKILL.md",
       "computedHash": "79fa0f9c079a5f15c9303756cfe793f5c166fa84a15b0292d432368d567ec97f"
     },
+    "grafana-oss": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-core/grafana-oss/SKILL.md",
+      "computedHash": "ae599bbeb4b8e6c62c06f37811c46be9fa065102f94590f3778fa16f12ed2843"
+    },
+    "grafana-scenes": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-plugins/grafana-scenes/SKILL.md",
+      "computedHash": "b38c07c0c3091b619ca2ac8f62edb6f7f1d4274ca5930430f01128c0859b1ca1"
+    },
     "including-generated-files": {
       "source": "dotnet/skills",
       "sourceType": "github",
@@ -210,6 +264,24 @@
       "sourceType": "github",
       "skillPath": "plugins/dotnet-msbuild/skills/incremental-build/SKILL.md",
       "computedHash": "9d5a96b1a804f9d990a0789ed621c619f6acbb2fe93a9dd665a34c967c18d560"
+    },
+    "k6": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-k6/k6/SKILL.md",
+      "computedHash": "005069afce8ff6b0e1cf5c8e4ef2c3a1c3595104f3c3149d6659f59282313bc1"
+    },
+    "k6-docs": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-k6/k6-docs/SKILL.md",
+      "computedHash": "5b8f1c6c40b48f1a384d0c00ad71f125d7837875ef851201eaf76c84b60a1999"
+    },
+    "loki": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-lgtm/loki/SKILL.md",
+      "computedHash": "d795a6d243616bcda87e1506c0d0847f62a354c6ccb4f881d73f78c3f4f063e3"
     },
     "maui-app-lifecycle": {
       "source": "dotnet/skills",
@@ -337,6 +409,12 @@
       "skillPath": "plugins/dotnet-test/skills/migrate-xunit-to-xunit-v3/SKILL.md",
       "computedHash": "3e5ced18eb8a27e53aa842c3d968f0181288a025c94ce1be8b9867b911380d2f"
     },
+    "mimir": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-lgtm/mimir/SKILL.md",
+      "computedHash": "e041b916812f65e59a68dab329a36fbb51589defd35f6608c9514493b82b7252"
+    },
     "minimal-api-file-upload": {
       "source": "dotnet/skills",
       "sourceType": "github",
@@ -391,6 +469,12 @@
       "skillPath": "plugins/dotnet/skills/nuget-trusted-publishing/SKILL.md",
       "computedHash": "cfe94d9ea3cc0cc2107eff8114dcf945778a0b24b4cc5205d365e3b8efa059cf"
     },
+    "opentelemetry": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-core/opentelemetry/SKILL.md",
+      "computedHash": "5912dd75f87ad49cf200cd549f0f52665af34057c7003c83aefce830244cb047"
+    },
     "optimizing-ef-core-queries": {
       "source": "dotnet/skills",
       "sourceType": "github",
@@ -408,6 +492,42 @@
       "sourceType": "github",
       "skillPath": "plugins/dotnet-test/skills/platform-detection/SKILL.md",
       "computedHash": "0775da9900374a0bd416f11b1c39d4e4e346c79f407687800c07a6e8b3d05f06"
+    },
+    "plugin-bundle-size": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-plugins/plugin-bundle-size/SKILL.md",
+      "computedHash": "71e4831fd586c695d895f012e9b3748052ebb1e442cf774a7ca3782e169989dd"
+    },
+    "prometheus": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-lgtm/prometheus/SKILL.md",
+      "computedHash": "a1108d56df85bcfdb46e4b798300bd27bb8813246d48a0a981a3f1649bad5df9"
+    },
+    "promql": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-core/promql/SKILL.md",
+      "computedHash": "6223eb98c5d9c19e82d98ffc4c414527673830209ce20d1636ecd80a17088f30"
+    },
+    "pyroscope": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-lgtm/pyroscope/SKILL.md",
+      "computedHash": "25e1782337b1f13621231e4bdb07913fcd248203f146281b292c5f91dfb4894a"
+    },
+    "react-19-plugin-migration": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-plugins/react-19-plugin-migration/SKILL.md",
+      "computedHash": "7c7fccad9526df73d5609eb136fe169d03cdc5282f65bfa597a132cd37e0e110"
+    },
+    "reconciler-logic": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-app-sdk/reconciler-logic/SKILL.md",
+      "computedHash": "b9540e21b955d3855c5ddcfa157955d3feef685ae4ff6719a4cf549db5f8d3cf"
     },
     "resolve-project-references": {
       "source": "dotnet/skills",
@@ -462,6 +582,12 @@
       "sourceType": "github",
       "skillPath": "plugins/dotnet-template-engine/skills/template-validation/SKILL.md",
       "computedHash": "b1814d5c06fc52e259d45df479ac74019bc7ca41c42bdcdaada130b3ebfb8918"
+    },
+    "tempo": {
+      "source": "grafana/skills",
+      "sourceType": "github",
+      "skillPath": "skills/grafana-lgtm/tempo/SKILL.md",
+      "computedHash": "38d6b374e3d756d398066bdc5d8432b4390b0a6429fdd3d23269a143c8d841e8"
     },
     "test-anti-patterns": {
       "source": "dotnet/skills",
