@@ -1,4 +1,6 @@
-// Phase 4 placeholder — DaemonSet collector. Phase 5 adds pod log tailing and scrape.
+// Phase 5 — DaemonSet: Prometheus scrape + Kubernetes pod logs (demo-services).
+// Deployed via deployment/k8s/observability/helm/values-alloy-daemonset.yaml
+
 logging {
   level  = "info"
   format = "logfmt"
@@ -6,7 +8,69 @@ logging {
 
 discovery.kubernetes "pods" {
   role = "pod"
+
   namespaces {
-    names = ["demo-services", "observability"]
+    names = ["demo-services"]
+  }
+}
+
+discovery.relabel "scrape_pods" {
+  targets = discovery.kubernetes.pods.targets
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+    regex         = "true"
+    action        = "keep"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port"]
+    action        = "replace"
+    target_label  = "__meta_kubernetes_pod_container_port_number"
+    regex         = "(.+)"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+    action        = "replace"
+    target_label  = "__metrics_path__"
+    regex         = "(.+)"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "namespace"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    target_label  = "pod"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+    target_label  = "service"
+  }
+}
+
+prometheus.scrape "demo_apps" {
+  targets    = discovery.relabel.scrape_pods.output
+  forward_to = [prometheus.remote_write.mimir.receiver]
+}
+
+prometheus.remote_write "mimir" {
+  endpoint {
+    url = "http://mimir-gateway.observability.svc.cluster.local/api/v1/push"
+  }
+}
+
+loki.source.kubernetes "demo_pods" {
+  targets    = discovery.kubernetes.pods.targets
+  forward_to = [loki.write.daemon.receiver]
+}
+
+loki.write "daemon" {
+  endpoint {
+    url = "http://loki-gateway.observability.svc.cluster.local/loki/api/v1/push"
   }
 }

@@ -8,6 +8,11 @@ const cms = new URL(getServerEnv().CMS_BASE_URL);
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  serverExternalPackages: [
+    "@opentelemetry/sdk-node",
+    "@opentelemetry/auto-instrumentations-node",
+    "@pyroscope/nodejs",
+  ],
   images: {
     remotePatterns: [
       {

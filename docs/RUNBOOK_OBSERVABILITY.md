@@ -1,6 +1,6 @@
 # Runbook: observability stack
 
-**Phase 4** — deploy with [deployment/k8s/observability/README.md](../deployment/k8s/observability/README.md).
+**Status:** Phase 4 ✅ complete (LGTM+ in cluster). Install/upgrade: [deployment/k8s/observability/README.md](../deployment/k8s/observability/README.md).
 
 ## Namespace
 
@@ -80,8 +80,39 @@ helm upgrade mimir grafana/mimir-distributed -n observability \
 
 | Phase | Scope |
 |-------|--------|
-| **4** | LGTM+ infra, placeholder Alloy, Grafana datasources |
+| **4** ✅ | LGTM+ infra, placeholder Alloy, Grafana datasources |
 | **5** | OTel in Umbraco/Next.js, Faro, full Alloy River config, profiles push |
+
+### Phase 5 rollout (after merging instrumentation)
+
+1. **Alloy** — upgrade gateway + DaemonSet with River config from [observability/alloy/](../../observability/alloy/):
+
+```powershell
+helm upgrade alloy-gateway grafana/alloy -n observability `
+  -f deployment/k8s/observability/helm/values-alloy-gateway.yaml --wait
+helm upgrade alloy grafana/alloy -n observability `
+  -f deployment/k8s/observability/helm/values-alloy-daemonset.yaml --wait
+kubectl apply -f deployment/k8s/observability/alloy/gateway-service.yaml
+```
+
+2. **Apps** — rebuild/push CMS and web images (OTel + Pyroscope + Faro), then apply ConfigMaps and roll Deployments in `demo-services`.
+
+3. **Verify** (Grafana Explore):
+   - Tempo: `{ resource.service.name = "umbraco-web" }` → child span to `umbraco-cms`
+   - Loki: JSON log line with `trace_id` from CMS (`{service_name="umbraco-cms"} | json`)
+   - Mimir: `traces_spanmetrics_latency_bucket` or OTel HTTP metrics for both services
+   - Pyroscope: `umbraco-cms` / `umbraco-web` profiles after a few page loads
+   - Faro: sessions after opening the public web UI (collector via `https://<web>/api/faro` → alloy-gateway:12347)
+
+**Endpoints (in-cluster):**
+
+| Signal | App env | Collector |
+|--------|---------|-----------|
+| OTLP gRPC | `OTEL_EXPORTER_OTLP_ENDPOINT=http://alloy-gateway.observability.svc.cluster.local:4317` | alloy-gateway:4317 |
+| Faro | Browser → `/api/faro` → `FARO_COLLECTOR_UPSTREAM` | alloy-gateway:12347 |
+| Pyroscope .NET | `PYROSCOPE_SERVER_ADDRESS` (native profiler in image) | pyroscope:4040 |
+| Pyroscope Node | `PYROSCOPE_SERVER_ADDRESS` in `instrumentation.node.ts` | pyroscope:4040 |
+| Pod logs | stdout JSON (CMS) | Alloy DaemonSet → Loki |
 
 ## Troubleshooting
 
@@ -91,7 +122,10 @@ helm upgrade mimir grafana/mimir-distributed -n observability \
 | Loki install: `more than zero replicas` for single binary and scalable | In [values-loki.yaml](../deployment/k8s/observability/helm/values-loki.yaml) set `write`/`read`/`backend` `replicas: 0` with `singleBinary.replicas: 1` |
 | Tempo: `Access Key Id ... does not exist` | Chart must set `tempo.extraArgs.config.expand-env: "true"` and `tempo.extraEnv` from `minio-credentials` ([values-tempo.yaml](../deployment/k8s/observability/helm/values-tempo.yaml)); Secret must match running MinIO |
 | Tempo/Grafana deprecated chart WARN | Use `grafana-community/tempo` / `grafana-community/grafana`; uninstall old release if upgrade fails |
-| Alloy: `otelcol.exporter.debug` experimental | Phase 4 gateway uses empty `output {}` in [values-alloy-gateway.yaml](../deployment/k8s/observability/helm/values-alloy-gateway.yaml); do not use debug exporter with `stabilityLevel: generally-available` |
+| Alloy: `otelcol.exporter.debug` experimental | Phase 5 uses wired exporters in [values-alloy-gateway.yaml](../deployment/k8s/observability/helm/values-alloy-gateway.yaml); do not use debug exporter with `stabilityLevel: generally-available` |
+| Alloy gateway CrashLoop after Phase 5 | `kubectl logs -n observability deploy/alloy-gateway` — fix River syntax; validate against [config.alloy](../../observability/alloy/config.alloy) |
+| No traces in Tempo | Apps `OTEL_EXPORTER_OTLP_ENDPOINT` → `alloy-gateway:4317`; gateway pods Running; generate traffic to web + CMS |
+| Faro empty | Browser network tab POST to `/api/faro`; `FARO_COLLECTOR_URL` on web pod; alloy-gateway port 12347 |
 | Mimir/Loki CrashLoop | MinIO buckets exist (`job/minio-create-buckets`); secret keys match values files |
 | Datasource error in Grafana | `kubectl -n observability get svc` — gateway service names match [values-grafana.yaml](../deployment/k8s/observability/helm/values-grafana.yaml) |
 | Alloy gateway no OTLP | `kubectl -n observability get svc alloy-gateway` ports 4317/4318; apply [gateway-service.yaml](../deployment/k8s/observability/alloy/gateway-service.yaml) |

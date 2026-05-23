@@ -153,3 +153,9 @@ Even in Phases 1–2, use **stable route names** for future metrics:
 - [x] Namespace `demo-services` — `deployment/k8s/apps/namespace.yaml`; CI workflows deploy with `-n demo-services`
 - [x] Umbraco + web manifests, IngressRoute, HPA (web); runbook [RUNBOOK_LOCAL_K8S.md](./RUNBOOK_LOCAL_K8S.md)
 - [x] Prod Ingress: [demo-cms.1node.tech](https://demo-cms.1node.tech), [demo-umbr-fe.1node.tech](https://demo-umbr-fe.1node.tech)
+
+### Observability stack (Phase 4) — complete
+
+- [x] Namespace `observability` — LGTM+ (Mimir, Loki, Tempo, Pyroscope, Grafana, Alloy gateway + DaemonSet, MinIO, OpenMaxIO)
+- [x] Grafana UI and datasources; Pyroscope UI; alloy-gateway OTLP (placeholder config — signals to backends in Phase 5)
+- [x] Runbook [RUNBOOK_OBSERVABILITY.md](./RUNBOOK_OBSERVABILITY.md); manifests `deployment/k8s/observability/`

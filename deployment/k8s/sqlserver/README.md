@@ -45,4 +45,4 @@ kubectl -n sqlserver exec -it statefulset/mssql2025 -- /opt/mssql-tools18/bin/sq
 | Podman / host on LAN | `10.255.0.101,1433` |
 | CMS pod in `demo-services` | `mssql2025.sqlserver.svc.cluster.local,1433` |
 
-See [src/umbraco/README.md](../../../src/umbraco/README.md) and [.env.example](../../../.env.example).
+See [src/umbraco/README.md](../../../src/umbraco/README.md) and [appsettings.Development.json.example](../../../src/umbraco/appsettings.Development.json.example).

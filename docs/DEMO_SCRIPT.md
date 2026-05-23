@@ -5,8 +5,8 @@ Completed in **Phase 7**. Draft structure — guide for the agent.
 ## Preparation (5 min)
 
 - [x] K8s apps (Phase 3): namespace `demo-services`, CMS + web Ingress — already deployed
-- [x] K8s observability (Phase 4): namespace `observability`, Grafana reachable
-- [ ] Grafana: port-forward or ingress, login
+- [x] K8s observability (Phase 4 ✅): namespace `observability`, Grafana Ingress + datasources
+- [x] Grafana login (ingress or port-forward)
 - [ ] Dashboards imported
 - [ ] `Demo__SlowEndpoint` and `Demo__FaultEndpoint` = false
 

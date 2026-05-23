@@ -6,6 +6,8 @@ const serverSchema = z.object({
 
 const publicSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
+  NEXT_PUBLIC_FARO_COLLECTOR_URL: z.string().url().optional(),
+  NEXT_PUBLIC_DEPLOYMENT_ENVIRONMENT: z.string().optional(),
 });
 
 export type ServerEnv = z.infer<typeof serverSchema>;
@@ -29,6 +31,16 @@ export function getServerEnv(): ServerEnv {
 
   cached = parsed.data;
   return parsed.data;
+}
+
+/** Runtime Faro collector URL (server → client prop). Defaults to same-origin BFF proxy. */
+export function getFaroCollectorUrl(): string {
+  const fromEnv = process.env.FARO_COLLECTOR_URL ?? process.env.NEXT_PUBLIC_FARO_COLLECTOR_URL;
+  if (fromEnv) {
+    return fromEnv.replace(/\/$/, "");
+  }
+
+  return `${getPublicSiteUrl().replace(/\/$/, "")}/api/faro`;
 }
 
 export function getPublicSiteUrl(): string {

@@ -1,0 +1,27 @@
+{
+  "$schema": "appsettings-schema.json",
+  "ConnectionStrings": {
+    "umbracoDbDSN": "Server=10.255.0.101,1433;Database=Umbraco;User Id=sa;Password=REPLACE_ME;TrustServerCertificate=True;Encrypt=True"
+  },
+  "Observability": {
+    "Otlp": {
+      "Endpoint": "http://localhost:4317",
+      "Protocol": "grpc"
+    }
+  },
+  "Umbraco": {
+    "CMS": {
+      "Global": {
+        "UseHttps": false
+      },
+      "WebRouting": {
+        "UmbracoApplicationUrl": "http://localhost:8080/"
+      },
+      "Unattended": {
+        "InstallUnattended": true,
+        "InstallMissingDatabase": true,
+        "UnattendedUserPassword": "ChangeMe_Demo123!"
+      }
+    }
+  }
+}

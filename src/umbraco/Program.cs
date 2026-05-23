@@ -3,10 +3,19 @@ using HealthChecks.SqlServer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Serilog;
 using UmbracoMonitoring.Configuration;
+using UmbracoMonitoring.Extensions;
+using UmbracoMonitoring.Logging;
 using UmbracoMonitoring.Middleware;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, _, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .Enrich.With<TraceLogEnricher>());
+
+builder.AddDemoObservability();
 
 builder.Services.AddControllers();
 builder.Services.AddResponseCompression(options =>
@@ -19,7 +28,7 @@ builder.Services.Configure<DemoOptions>(builder.Configuration.GetSection(DemoOpt
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
-    options.KnownNetworks.Clear();
+    options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
 });
 

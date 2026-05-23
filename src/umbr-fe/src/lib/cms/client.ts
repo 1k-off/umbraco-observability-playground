@@ -1,4 +1,5 @@
 import { getServerEnv } from "@/lib/env";
+import { withCmsFetchSpan } from "@/lib/observability/tracer";
 import {
   mapArticleDetail,
   mapArticleSummary,
@@ -31,29 +32,31 @@ type FetchOptions = {
 };
 
 async function cmsFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
-  const base = getServerEnv().CMS_BASE_URL.replace(/\/$/, "");
-  const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
+  return withCmsFetchSpan("fetch", { "http.route": path }, async () => {
+    const base = getServerEnv().CMS_BASE_URL.replace(/\/$/, "");
+    const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
 
-  const init: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } } = {
-    headers: { Accept: "application/json" },
-  };
-
-  if (options.revalidate === false) {
-    init.cache = "no-store";
-  } else {
-    init.next = {
-      revalidate: options.revalidate ?? REVALIDATE_LIST,
-      tags: options.tags,
+    const init: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } } = {
+      headers: { Accept: "application/json" },
     };
-  }
 
-  const response = await fetch(url, init);
+    if (options.revalidate === false) {
+      init.cache = "no-store";
+    } else {
+      init.next = {
+        revalidate: options.revalidate ?? REVALIDATE_LIST,
+        tags: options.tags,
+      };
+    }
 
-  if (!response.ok) {
-    throw new Error(`CMS ${response.status} ${response.statusText} for ${path}`);
-  }
+    const response = await fetch(url, init);
 
-  return response.json() as Promise<T>;
+    if (!response.ok) {
+      throw new Error(`CMS ${response.status} ${response.statusText} for ${path}`);
+    }
+
+    return response.json() as Promise<T>;
+  });
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {

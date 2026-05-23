@@ -14,7 +14,7 @@ Before writing code, read `AGENTS.md` and the relevant `docs/*.md`.
 **Phases 0–4** are complete. Default agent focus is **Phase 5** (instrumentation) unless the user says “Phase N”.
 
 - **Phases 1–3:** apps + K8s apps in `demo-services`.
-- **Phase 4:** LGTM+ in `observability` (no NetworkPolicies in demo).
+- **Phase 4 ✅:** LGTM+ in `observability` (no NetworkPolicies in demo).
 - **Phase 5:** OTel, Faro, full Alloy pipeline.
 - **Phase 6:** full k6 load testing (`load/k6/` — smoke, load, stress, spike, cms-direct; not smoke-only).
 - **Phases 7–8:** dashboards, demo, Beyla optional.

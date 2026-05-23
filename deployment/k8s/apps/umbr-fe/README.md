@@ -1,6 +1,6 @@
 # Next.js frontend (`umbr-fe`, Kubernetes)
 
-**Phase 3 complete.** Public URL: `https://demo-umbr-fe.1node.tech` (nginx SSL → cluster, same pattern as CMS). Image: `ghcr.io/<owner>/monitoring-demo-umbr-fe:latest`.
+**Phase 3 complete.** Public URL: `https://demo-umbr-fe.1node.tech` (nginx SSL → cluster, same pattern as CMS). Image: `ghcr.io/<owner>/monitoring-demo-umbr-fe:<commit-sha>`.
 
 Manifests have **no `namespace`** — set at apply time, e.g. `-n demo-services` (same as [../umbraco/README.md](../umbraco/README.md)).
 
@@ -12,9 +12,9 @@ Manifests have **no `namespace`** — set at apply time, e.g. `-n demo-services`
 
 ## CI/CD (GitHub Actions)
 
-Workflow [`.github/workflows/umbr-fe-container.yml`](../../../.github/workflows/umbr-fe-container.yml): Docker build with `CMS_BASE_URL` build-arg → GHCR → deploy on `main` (PR = build only).
+Workflow [`.github/workflows/umbr-fe-container.yml`](../../../.github/workflows/umbr-fe-container.yml): Docker build with `CMS_BASE_URL` build-arg → GHCR tags (`<sha>`, branch, `pr-<n>`) → deploy on `main` (PR = build only).
 
-Uses `Azure/k8s-deploy@v5` with `secrets.KUBECONFIG`. Image tag = commit SHA from `docker/metadata-action`.
+Uses `Azure/k8s-deploy@v5` with `secrets.KUBECONFIG`. **K8s always gets the immutable commit SHA**, not branch/PR tags. Deploy replaces placeholder `0.0.0` in [deployment.yaml](./deployment.yaml).
 
 **Repository secrets:**
 

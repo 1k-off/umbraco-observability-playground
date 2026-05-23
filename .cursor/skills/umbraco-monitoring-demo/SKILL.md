@@ -23,7 +23,7 @@ description: >-
 | 1 | `src/umbraco/` | Next.js, observability |
 | 2 | `src/umbr-fe/` | observability |
 | 3 | `deployment/k8s/apps/` | observability namespace, k6 |
-| 4 | `deployment/k8s/observability/` | app OTel/Faro |
+| 4 ✅ | `deployment/k8s/observability/` (done) | app OTel/Faro |
 | 5 | OTel, Alloy, Faro, Pyroscope SDKs | Beyla (unless user asks), k6 |
 | 6 | `load/k6/` — **full** suite (smoke, load, stress, spike, cms-direct) | smoke-only as phase deliverable |
 | 7 | dashboards, alerts, demo docs | — |

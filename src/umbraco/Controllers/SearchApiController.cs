@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using Examine;
 using Examine.Search;
 using Microsoft.AspNetCore.Mvc;
 using Umbraco.Cms.Core;
+using UmbracoMonitoring.Telemetry;
 
 namespace UmbracoMonitoring.Controllers;
 
@@ -19,16 +21,23 @@ public class SearchApiController : ControllerBase
     [HttpGet]
     public IActionResult Search([FromQuery] string? q, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
+        using Activity? activity = DemoTelemetry.ActivitySource.StartActivity("ExamineSearch", ActivityKind.Internal);
+        activity?.SetTag("search.page", page);
+        activity?.SetTag("search.page_size", pageSize);
+
         if (string.IsNullOrWhiteSpace(q))
         {
             return BadRequest(new { error = "Query parameter q is required." });
         }
+
+        activity?.SetTag("search.query_length", q.Length);
 
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 50);
 
         if (!_examineManager.TryGetIndex(Constants.UmbracoIndexes.ExternalIndexName, out IIndex? index))
         {
+            activity?.SetStatus(ActivityStatusCode.Error, "Search index not available");
             return StatusCode(503, new { error = "Search index not available." });
         }
 
@@ -39,6 +48,8 @@ public class SearchApiController : ControllerBase
             .CreateQuery("content")
             .ManagedQuery(q)
             .Execute(new QueryOptions(skip, pageSize));
+
+        activity?.SetTag("search.result_count", results.TotalItemCount);
 
         var items = results
             .Select(r => new

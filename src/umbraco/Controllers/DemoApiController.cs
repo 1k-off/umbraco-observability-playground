@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using UmbracoMonitoring.Configuration;
+using UmbracoMonitoring.Telemetry;
 
 namespace UmbracoMonitoring.Controllers;
 
@@ -25,6 +27,10 @@ public class DemoApiController : ControllerBase
         }
 
         delayMs = Math.Clamp(delayMs, 50, 500);
+
+        using Activity? activity = DemoTelemetry.ActivitySource.StartActivity("DemoSlowEndpoint", ActivityKind.Internal);
+        activity?.SetTag("demo.delay_ms", delayMs);
+
         await Task.Delay(delayMs, cancellationToken);
         return Ok(new { delayedMs = delayMs });
     }

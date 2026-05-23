@@ -2,6 +2,8 @@
 
 Target architecture for the **umbraco-monitoring** demo: applications, data, Kubernetes, observability.
 
+**Implementation status:** Phases 0–4 complete (apps in `demo-services`, LGTM+ in `observability`). Phase 5+ adds app OTLP/Faro and full Alloy pipeline.
+
 ---
 
 ## Context (C4 Level 1)
@@ -101,7 +103,7 @@ Cluster
 | Headless | Frontend does not use Management API |
 | BFF | Route handlers hide CMS URL from browser where needed |
 | Cache | Next `revalidate` reduces CMS load; k6 scenarios account for warm/cold cache |
-| Secrets | K8s Secrets; locally `.env` (gitignored) |
+| Secrets | K8s Secrets (CMS connection string); locally `appsettings.Development.json`, `src/umbr-fe/.env.local` (gitignored) |
 | Media | Umbraco media via CMS URL; Next `next/image` remotePatterns |
 
 ---

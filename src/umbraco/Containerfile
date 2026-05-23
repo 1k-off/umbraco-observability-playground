@@ -3,11 +3,14 @@ WORKDIR /src
 COPY . .
 RUN dotnet publish UmbracoMonitoring.csproj -c Release -o /app/publish /p:UseAppHost=false
 
+FROM pyroscope/pyroscope-dotnet:0.13.0-glibc AS pyroscope
+
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+COPY --from=pyroscope /Pyroscope.Profiler.Native.so /Pyroscope.Linux.ApiWrapper.x64.so /app/
+# OTel: appsettings; Pyroscope profiler env: K8s ConfigMap only
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "UmbracoMonitoring.dll"]

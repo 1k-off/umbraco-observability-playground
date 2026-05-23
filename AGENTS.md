@@ -21,7 +21,7 @@ Before any implementation, read the relevant files:
 | k6 baseline numbers | [docs/BASELINE.md](./docs/BASELINE.md) |
 | Demo walkthrough | [docs/DEMO_SCRIPT.md](./docs/DEMO_SCRIPT.md) |
 | K8s apps deploy | [docs/RUNBOOK_LOCAL_K8S.md](./docs/RUNBOOK_LOCAL_K8S.md) (Phase 3 ✅) |
-| Observability deploy | [docs/RUNBOOK_OBSERVABILITY.md](./docs/RUNBOOK_OBSERVABILITY.md) (Phase 4) |
+| Observability deploy | [docs/RUNBOOK_OBSERVABILITY.md](./docs/RUNBOOK_OBSERVABILITY.md) (Phase 4 ✅) |
 
 ## Hard rules
 
@@ -29,7 +29,7 @@ Before any implementation, read the relevant files:
 2. **Applications first, signals second.** Phases 1–5 (apps, K8s, obs stack, instrumentation) before **Phase 6** full k6 load testing.
 3. **Minimal diff.** One phase / one logical PR chunk — one area of change. Do not refactor unrelated code.
 4. **k6 is mandatory.** Any new load-bearing endpoint or user flow — update [docs/K6_LOAD_TESTING.md](./docs/K6_LOAD_TESTING.md) and add/extend a scenario.
-5. **No secrets in git.** Connection strings, API keys, Grafana admin — only `.env.example`, K8s Secret templates, documentation.
+5. **No secrets in git.** Connection strings, API keys, Grafana admin — K8s Secret templates, `appsettings.Development.json.example` (CMS), `src/umbr-fe/.env.example` (web), documentation.
 6. **Linux-first for CI/K8s.** Windows locally is fine; pipelines and manifests target Linux containers.
 7. **Commits** — only when the user explicitly asks.
 8. After changing **global** conventions or `.cursor/skills/` — update this file (see `agents-md-sync` skill).
@@ -48,7 +48,7 @@ Before any implementation, read the relevant files:
 │   └── k8s/
 │       ├── sqlserver/       # SQL Server StatefulSet (remote cluster)
 │       ├── apps/            # Umbraco, web, ingress (Phase 3 ✅)
-│       └── observability/   # Grafana stack (Phase 4)
+│       └── observability/   # Grafana stack (Phase 4 ✅)
 ├── docker-compose.yml       # Local apps; CMS uses remote SQL (Phase 1+)
 ├── load/
 │   └── k6/                  # Scenarios, thresholds, helpers
@@ -68,7 +68,7 @@ Directories `src/`, `deployment/`, `load/` may not exist yet — create them acc
 - **No local .NET SDK required** — build and run Umbraco via **Docker** only.
 - **Kubernetes is remote** — apply manifests with `kubectl` to the remote cluster.
 - **SQL Server runs in remote K8s** — namespace `sqlserver`, LB IP `10.255.0.101:1433` (cluster MetalLB not in repo); see `deployment/k8s/sqlserver/README.md`.
-- **Local containers** (Podman/Docker; Compose when added) run app services; Umbraco connects to SQL at `10.255.0.101` (see `.env.example`, `src/umbraco/README.md`).
+- **Local containers** (Podman/Docker; Compose when added) run app services; Umbraco uses `appsettings.Development.json` (see `src/umbraco/README.md`); web uses `src/umbr-fe/.env.local`.
 
 ## Technology stack
 
@@ -144,8 +144,9 @@ See [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md). Summary:
 - [x] Phase 1 criteria in IMPLEMENTATION_PLAN are met (Umbraco; verified prod health/Delivery API)
 - [x] Phase 2 criteria in IMPLEMENTATION_PLAN (Next.js web)
 - [x] Phase 3 criteria in IMPLEMENTATION_PLAN (K8s apps; prod Ingress verified)
+- [x] Phase 4 criteria in IMPLEMENTATION_PLAN (LGTM+ in `observability`; Grafana datasources, Alloy, Pyroscope verified)
 - [ ] Phase criteria for the **active** phase (5: instrumentation) are met
-- [x] README / docs updated for Phase 1–3 closure
+- [x] README / docs updated for Phase 1–4 closure
 - [ ] Full k6 suite passes on k8s (Phase 6; after instrumentation)
 - [ ] No secrets in git
 - [ ] AGENTS.md updated for new cross-cutting rules

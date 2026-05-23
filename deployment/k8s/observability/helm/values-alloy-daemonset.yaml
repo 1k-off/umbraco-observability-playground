@@ -1,5 +1,7 @@
-# Grafana Alloy — DaemonSet for node/pod discovery (placeholder until Phase 5).
-# Install: helm upgrade --install alloy grafana/alloy -n observability -f values-alloy-daemonset.yaml
+# Grafana Alloy — DaemonSet: Kubernetes pod logs for demo-services.
+# River config source of truth: observability/alloy/config-daemonset.alloy
+#
+# helm upgrade --install alloy grafana/alloy -n observability -f values-alloy-daemonset.yaml
 
 nameOverride: alloy
 fullnameOverride: alloy
@@ -27,8 +29,20 @@ alloy:
 
       discovery.kubernetes "pods" {
         role = "pod"
+
         namespaces {
-          names = ["demo-services", "observability"]
+          names = ["demo-services"]
+        }
+      }
+
+      loki.source.kubernetes "demo_pods" {
+        targets    = discovery.kubernetes.pods.targets
+        forward_to = [loki.write.daemon.receiver]
+      }
+
+      loki.write "daemon" {
+        endpoint {
+          url = "http://loki-gateway.observability.svc.cluster.local/loki/api/v1/push"
         }
       }
 

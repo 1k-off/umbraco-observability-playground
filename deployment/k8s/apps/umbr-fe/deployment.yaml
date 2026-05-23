@@ -21,7 +21,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: demo-umbr-fe
-          image: ghcr.io/1k-off/monitoring-demo-umbr-fe:latest
+          image: ghcr.io/1k-off/monitoring-demo-umbr-fe:0.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

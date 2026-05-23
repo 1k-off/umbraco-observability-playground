@@ -46,21 +46,31 @@ Pull (no auth for public packages):
 podman pull ghcr.io/<github-owner>/umbraco-monitoring-cms:latest
 ```
 
-## Run
+## Configuration
 
-Set SQL password (match `mssql2025-secret`):
+| Environment | Settings |
+|-------------|----------|
+| **K8s** | `appsettings.Production.json` in the image + [configmap.yaml](../../deployment/k8s/apps/umbraco/configmap.yaml) (ingress/HTTPS) + Secret `ConnectionStrings__umbracoDbDSN` |
+| **Local** | `appsettings.Development.json` (gitignored) from [appsettings.Development.json.example](./appsettings.Development.json.example) |
+
+OTel: `Observability` section in appsettings (not `.env`). Pyroscope native profiler: K8s ConfigMap env only (CLR limitation).
+
+## Run (Podman)
 
 ```powershell
-$env:ConnectionStrings__umbracoDbDSN = "Server=10.255.0.101,1433;Database=Umbraco;User Id=sa;Password=YOUR_PASSWORD;TrustServerCertificate=True;Encrypt=True"
+# 1. Create appsettings.Development.json from the example (SQL password — not in git)
+Copy-Item appsettings.Development.json.example appsettings.Development.json
 
+# 2. Run with local appsettings mounted
 podman run --rm -p 8080:8080 `
-  -e ASPNETCORE_ENVIRONMENT=Docker `
-  -e ASPNETCORE_URLS=http://0.0.0.0:8080 `
-  -e Umbraco__CMS__Global__UseHttps=false `
-  -e ConnectionStrings__umbracoDbDSN=$env:ConnectionStrings__umbracoDbDSN `
-  -e Umbraco__CMS__Unattended__UnattendedUserPassword="ChangeMe_Demo123!" `
+  -v "${PWD}/appsettings.Development.json:/app/appsettings.Development.json:ro" `
+  -e ASPNETCORE_ENVIRONMENT=Development `
   umbraco-monitoring-cms:latest
 ```
+
+Without a volume mount, only production appsettings from the image apply; set the connection string via K8s Secret or a one-off `-e ConnectionStrings__umbracoDbDSN=...` (do not commit).
+
+K8s: [deployment/k8s/apps/umbraco/README.md](../../deployment/k8s/apps/umbraco/README.md).
 
 Or:
 
@@ -70,7 +80,7 @@ Or:
 
 First start runs **unattended install** and **content seed** (100 articles, 25 media images from `seed-media/`). Allow 2–5 minutes.
 
-Copy `appsettings.Development.json.example` → `appsettings.Development.json` (gitignored) for local SDK/`dotnet run`.
+Copy [appsettings.Development.json.example](./appsettings.Development.json.example) → `appsettings.Development.json` (gitignored) for local SDK/`dotnet run`.
 
 ## Endpoints
 

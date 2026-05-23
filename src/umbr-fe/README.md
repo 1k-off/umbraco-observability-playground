@@ -12,10 +12,11 @@ Public **Tech Blog Demo** frontend: App Router, shadcn/ui, server-side calls to 
 ```bash
 cd src/umbr-fe
 cp .env.example .env.local
+# Edit CMS_BASE_URL if CMS is not on http://localhost:8080
 npm install
 ```
 
-Set `CMS_BASE_URL` to your CMS origin (local Podman or `https://demo-cms.1node.tech`).
+Environment: [`.env.example`](./.env.example) → `.env.local`. K8s: `deployment/k8s/apps/umbr-fe/configmap.yaml`.
 
 ## Run
 

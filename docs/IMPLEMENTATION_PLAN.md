@@ -11,7 +11,7 @@ flowchart LR
   P0[Phase 0 Docs] --> P1[Phase 1 Umbraco ✅]
   P1 --> P2[Phase 2 Next.js ✅]
   P2 --> P3[Phase 3 K8s Apps ✅]
-  P3 --> P4[Phase 4 K8s Obs]
+  P3 --> P4[Phase 4 K8s Obs ✅]
   P4 --> P5[Phase 5 Instrument]
   P5 --> P6[Phase 6 k6 load]
   P6 --> P7[Phase 7 Dashboards]
@@ -24,7 +24,7 @@ flowchart LR
 | 1 | Umbraco headless | ✅ done | Health only |
 | 2 | Next.js + shadcn | ✅ done | Health only |
 | 3 | Kubernetes (apps) | ✅ done | None |
-| 4 | Kubernetes (obs stack) | 3–5 days | Infra only |
+| 4 | Kubernetes (obs stack) | ✅ done | Infra only |
 | 5 | Instrumentation | 4–6 days | Full |
 | 6 | k6 load testing | 3–5 days | Uses full stack |
 | 7 | Dashboards and demo | 3–4 days | Alerts |
@@ -91,7 +91,7 @@ Full headless CMS with Delivery API, demo content, and load-friendly endpoints.
 8. [x] Structured logging to stdout (`requestId`; no trace_id until Phase 5)
 9. [x] Seed: `DemoContentSeedHostedService` — 100 articles, 5 categories, 10 authors, media
 10. [x] Multi-stage `Containerfile` (see `src/umbraco/README.md`)
-11. [x] `.env.example`, local `appsettings.Development.json` (gitignored; see `src/umbraco/README.md`)
+11. [x] CMS: `appsettings` + `appsettings.Development.json.example`; web: `src/umbr-fe/.env.example` (see READMEs)
 
 **Phase 3 (done):** `deployment/k8s/apps/umbraco/` + [`.github/workflows/umbraco-container.yml`](../.github/workflows/umbraco-container.yml) — `https://demo-cms.1node.tech`.
 
@@ -179,7 +179,7 @@ No root Kustomization required — apply `umbraco/` and `umbr-fe/` separately wi
 
 ---
 
-## Phase 4 — Kubernetes (observability stack)
+## Phase 4 — Kubernetes (observability stack) (complete)
 
 ### Goal
 
@@ -210,6 +210,8 @@ NetworkPolicies are **out of scope** for this demo (default cluster networking i
 ---
 
 ## Phase 5 — Application instrumentation and Alloy
+
+**Status:** Implementation in repo (May 2026). Cluster DoD verification pending after image + Alloy rollout.
 
 ### Goal
 

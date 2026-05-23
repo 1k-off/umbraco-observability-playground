@@ -27,58 +27,58 @@ public class ContentTypeBootstrap
         _shortStringHelper = shortStringHelper;
     }
 
-    public void EnsureDocumentTypes()
+    public async Task EnsureDocumentTypesAsync(CancellationToken cancellationToken = default)
     {
-        EnsureCategoryType();
-        EnsureAuthorType();
-        EnsureArticleType();
-        EnsureSiteSettingsType();
+        await EnsureCategoryTypeAsync(cancellationToken);
+        await EnsureAuthorTypeAsync(cancellationToken);
+        await EnsureArticleTypeAsync(cancellationToken);
+        await EnsureSiteSettingsTypeAsync(cancellationToken);
     }
 
-    private void EnsureCategoryType()
+    private async Task EnsureCategoryTypeAsync(CancellationToken cancellationToken)
     {
         IContentType type = GetOrCreate(CategoryAlias, "Category", allowsAtRoot: true);
         var changed = false;
-        changed |= EnsureText(type, "name", "Name");
-        changed |= EnsureText(type, "slug", "Slug");
-        changed |= EnsureTextarea(type, "description", "Description");
+        changed |= await EnsureTextAsync(type, "name", "Name", cancellationToken);
+        changed |= await EnsureTextAsync(type, "slug", "Slug", cancellationToken);
+        changed |= await EnsureTextareaAsync(type, "description", "Description", cancellationToken);
         SaveIfDirty(type, changed);
     }
 
-    private void EnsureAuthorType()
+    private async Task EnsureAuthorTypeAsync(CancellationToken cancellationToken)
     {
         IContentType type = GetOrCreate(AuthorAlias, "Author", allowsAtRoot: true);
         var changed = false;
-        changed |= EnsureText(type, "name", "Name");
-        changed |= EnsureText(type, "slug", "Slug");
-        changed |= EnsureTextarea(type, "bio", "Bio");
-        changed |= EnsureMediaPicker(type, "avatar", "Avatar");
+        changed |= await EnsureTextAsync(type, "name", "Name", cancellationToken);
+        changed |= await EnsureTextAsync(type, "slug", "Slug", cancellationToken);
+        changed |= await EnsureTextareaAsync(type, "bio", "Bio", cancellationToken);
+        changed |= await EnsureMediaPickerAsync(type, "avatar", "Avatar", cancellationToken);
         SaveIfDirty(type, changed);
     }
 
-    private void EnsureArticleType()
+    private async Task EnsureArticleTypeAsync(CancellationToken cancellationToken)
     {
         IContentType type = GetOrCreate(ArticleAlias, "Article", allowsAtRoot: true);
         var changed = false;
-        changed |= EnsureText(type, "title", "Title");
-        changed |= EnsureText(type, "slug", "Slug");
-        changed |= EnsureTextarea(type, "excerpt", "Excerpt");
-        changed |= EnsureRichtext(type, "body", "Body");
-        changed |= EnsureDate(type, "publishDate", "Publish date");
-        changed |= EnsureMediaPicker(type, "featuredImage", "Featured image");
-        changed |= EnsureContentPicker(type, "category", "Category");
-        changed |= EnsureContentPicker(type, "author", "Author");
+        changed |= await EnsureTextAsync(type, "title", "Title", cancellationToken);
+        changed |= await EnsureTextAsync(type, "slug", "Slug", cancellationToken);
+        changed |= await EnsureTextareaAsync(type, "excerpt", "Excerpt", cancellationToken);
+        changed |= await EnsureRichtextAsync(type, "body", "Body", cancellationToken);
+        changed |= await EnsureDateAsync(type, "publishDate", "Publish date", cancellationToken);
+        changed |= await EnsureMediaPickerAsync(type, "featuredImage", "Featured image", cancellationToken);
+        changed |= await EnsureContentPickerAsync(type, "category", "Category", cancellationToken);
+        changed |= await EnsureContentPickerAsync(type, "author", "Author", cancellationToken);
         SaveIfDirty(type, changed);
     }
 
-    private void EnsureSiteSettingsType()
+    private async Task EnsureSiteSettingsTypeAsync(CancellationToken cancellationToken)
     {
         IContentType type = GetOrCreate(SiteSettingsAlias, "Site settings", allowsAtRoot: true);
         var changed = false;
-        changed |= EnsureText(type, "siteName", "Site name");
-        changed |= EnsureText(type, "tagline", "Tagline");
-        changed |= EnsureRichtext(type, "aboutBody", "About body");
-        changed |= EnsureText(type, "contactEmail", "Contact email");
+        changed |= await EnsureTextAsync(type, "siteName", "Site name", cancellationToken);
+        changed |= await EnsureTextAsync(type, "tagline", "Tagline", cancellationToken);
+        changed |= await EnsureRichtextAsync(type, "aboutBody", "About body", cancellationToken);
+        changed |= await EnsureTextAsync(type, "contactEmail", "Contact email", cancellationToken);
         SaveIfDirty(type, changed);
     }
 
@@ -110,32 +110,38 @@ public class ContentTypeBootstrap
         };
     }
 
-    private bool EnsureText(IContentType type, string alias, string name)
-        => EnsureProperty(type, alias, name, Constants.PropertyEditors.Aliases.TextBox);
+    private Task<bool> EnsureTextAsync(IContentType type, string alias, string name, CancellationToken cancellationToken)
+        => EnsurePropertyAsync(type, alias, name, Constants.PropertyEditors.Aliases.TextBox, cancellationToken);
 
-    private bool EnsureTextarea(IContentType type, string alias, string name)
-        => EnsureProperty(type, alias, name, Constants.PropertyEditors.Aliases.TextArea);
+    private Task<bool> EnsureTextareaAsync(IContentType type, string alias, string name, CancellationToken cancellationToken)
+        => EnsurePropertyAsync(type, alias, name, Constants.PropertyEditors.Aliases.TextArea, cancellationToken);
 
-    private bool EnsureRichtext(IContentType type, string alias, string name)
-        => EnsureProperty(type, alias, name, Constants.PropertyEditors.Aliases.RichText);
+    private Task<bool> EnsureRichtextAsync(IContentType type, string alias, string name, CancellationToken cancellationToken)
+        => EnsurePropertyAsync(type, alias, name, Constants.PropertyEditors.Aliases.RichText, cancellationToken);
 
-    private bool EnsureDate(IContentType type, string alias, string name)
-        => EnsureProperty(type, alias, name, Constants.PropertyEditors.Aliases.DateTime);
+    private Task<bool> EnsureDateAsync(IContentType type, string alias, string name, CancellationToken cancellationToken)
+        => EnsurePropertyAsync(type, alias, name, Constants.PropertyEditors.Aliases.DateTime, cancellationToken);
 
-    private bool EnsureContentPicker(IContentType type, string alias, string name)
-        => EnsureProperty(type, alias, name, Constants.PropertyEditors.Aliases.ContentPicker);
+    private Task<bool> EnsureContentPickerAsync(IContentType type, string alias, string name, CancellationToken cancellationToken)
+        => EnsurePropertyAsync(type, alias, name, Constants.PropertyEditors.Aliases.ContentPicker, cancellationToken);
 
-    private bool EnsureMediaPicker(IContentType type, string alias, string name)
-        => EnsureProperty(type, alias, name, Constants.PropertyEditors.Aliases.MediaPicker3);
+    private Task<bool> EnsureMediaPickerAsync(IContentType type, string alias, string name, CancellationToken cancellationToken)
+        => EnsurePropertyAsync(type, alias, name, Constants.PropertyEditors.Aliases.MediaPicker3, cancellationToken);
 
-    private bool EnsureProperty(IContentType type, string alias, string name, string editorAlias)
+    private async Task<bool> EnsurePropertyAsync(
+        IContentType type,
+        string alias,
+        string name,
+        string editorAlias,
+        CancellationToken cancellationToken)
     {
         if (type.PropertyTypes.Any(p => p.Alias == alias))
         {
             return false;
         }
 
-        IDataType dataType = _dataTypeService.GetByEditorAlias(editorAlias).First()
+        IEnumerable<IDataType> dataTypes = await _dataTypeService.GetByEditorAliasAsync(editorAlias);
+        IDataType dataType = dataTypes.First()
             ?? throw new InvalidOperationException($"Data type for editor {editorAlias} not found.");
 
         var propertyType = new PropertyType(_shortStringHelper, dataType, alias)

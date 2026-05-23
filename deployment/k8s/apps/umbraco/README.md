@@ -1,6 +1,6 @@
 # Umbraco CMS (Kubernetes)
 
-**Phase 3 complete.** Public URL: `https://demo-cms.1node.tech` (nginx SSL → cluster). Image: `ghcr.io/1k-off/monitoring-demo-umbraco:latest`.
+**Phase 3 complete.** Public URL: `https://demo-cms.1node.tech` (nginx SSL → cluster). Image: `ghcr.io/1k-off/monitoring-demo-umbraco:<commit-sha>`.
 
 Manifests have **no `namespace`** — set it at apply time, e.g. `-n demo-services` (see [../namespace.yaml](../namespace.yaml)).
 
@@ -12,9 +12,9 @@ Manifests have **no `namespace`** — set it at apply time, e.g. `-n demo-servic
 
 ## CI/CD (GitHub Actions)
 
-Workflow [`.github/workflows/umbraco-container.yml`](../../../.github/workflows/umbraco-container.yml): `docker/metadata-action` + `build-push` (tags: branch, PR, `sha`, `latest` on default branch) → deploy on `main` only (PR = build, no deploy).
+Workflow [`.github/workflows/umbraco-container.yml`](../../../.github/workflows/umbraco-container.yml): `docker/metadata-action` tags images in GHCR (`<sha>`, branch e.g. `main`, `pr-<n>` on PRs) → deploy on `main` only (PR = build, no deploy).
 
-Uses `azure/k8s-create-secret@v5` and `Azure/k8s-deploy@v5` with `secrets.KUBECONFIG`. Deploy substitutes `ghcr.io/<owner>/monitoring-demo-umbraco:<sha>` (`needs.build.outputs.image_tag` = commit SHA from metadata).
+Uses `azure/k8s-create-secret@v5` and `Azure/k8s-deploy@v5` with `secrets.KUBECONFIG`. **K8s always gets the immutable commit SHA** (`needs.build.outputs.image_tag`), not floating branch tags. Deploy replaces placeholder `0.0.0` in [deployment.yaml](./deployment.yaml).
 
 **Repository secrets:**
 

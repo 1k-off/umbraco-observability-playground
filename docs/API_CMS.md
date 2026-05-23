@@ -7,7 +7,7 @@ Content model and feature flags: [APPLICATION_SPEC.md](./APPLICATION_SPEC.md).
 | Local Podman | `http://localhost:8080` |
 | K8s / prod | `https://demo-cms.1node.tech` |
 
-See [src/umbraco/README.md](../src/umbraco/README.md), [.env.example](../.env.example), [deployment/k8s/apps/umbraco/README.md](../deployment/k8s/apps/umbraco/README.md).
+See [src/umbraco/README.md](../src/umbraco/README.md), [deployment/k8s/apps/umbraco/README.md](../deployment/k8s/apps/umbraco/README.md).
 
 ## Health
 

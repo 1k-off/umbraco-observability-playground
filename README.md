@@ -16,6 +16,7 @@ Demonstrate end-to-end monitoring of a real application: metrics, logs, traces, 
 | [docs/APPLICATION_SPEC.md](./docs/APPLICATION_SPEC.md) | Sample application functionality |
 | [docs/API_CMS.md](./docs/API_CMS.md) | CMS HTTP examples |
 | [docs/MONITORING_STACK.md](./docs/MONITORING_STACK.md) | Observability stack and signals |
+| [docs/RUNBOOK_OBSERVABILITY.md](./docs/RUNBOOK_OBSERVABILITY.md) | Observability K8s deploy (Phase 4 ✅) |
 | [docs/K6_LOAD_TESTING.md](./docs/K6_LOAD_TESTING.md) | Load scenarios and SLOs |
 | [docs/BASELINE.md](./docs/BASELINE.md) | k6 baseline (Phase 6) |
 | [docs/DEMO_SCRIPT.md](./docs/DEMO_SCRIPT.md) | Presentation script (Phase 7) |
@@ -32,8 +33,8 @@ Aligned with [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md):
 | 2 | Next.js + shadcn ✅ |
 | 3 | K8s apps + ingress ✅ |
 | 4 | K8s observability stack ✅ |
-| 5 | OTel, Alloy, Faro, profiles ← current |
-| 6 | k6 full load testing |
+| 5 | OTel, Alloy, Faro, profiles (code ✅ — cluster verify pending) |
+| 6 | k6 full load testing ← next |
 | 7 | Dashboards, alerts, demo script |
 | 8 | Beyla (optional) |
 
@@ -54,5 +55,5 @@ Aligned with [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md):
 | Observability K8s | `deployment/k8s/observability/` | Phase 4 ✅ (cluster verified) |
 | k6 | `load/k6/` | Phase 6 (after instrumentation) |
 
-Local CMS: **Podman** on `http://localhost:8080` — see [src/umbraco/README.md](./src/umbraco/README.md).  
-Web local: `cd src/umbr-fe && npm run dev` — prod [demo-umbr-fe.1node.tech](https://demo-umbr-fe.1node.tech).
+Local CMS: **Podman** — [src/umbraco/README.md](./src/umbraco/README.md) (`appsettings.Development.json`).  
+Web local: `cd src/umbr-fe && npm run dev` — [src/umbr-fe/.env.example](./src/umbr-fe/.env.example). Prod: [demo-umbr-fe.1node.tech](https://demo-umbr-fe.1node.tech).

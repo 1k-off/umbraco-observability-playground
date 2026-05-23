@@ -3,8 +3,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { FaroProvider } from "@/components/observability/faro-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { getSiteSettings } from "@/lib/cms/client";
+import { getFaroCollectorUrl } from "@/lib/env";
 
 import "./globals.css";
 
@@ -36,6 +38,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const settings = await getSiteSettings();
+  const faroCollectorUrl = getFaroCollectorUrl();
 
   return (
     <html
@@ -43,10 +46,12 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
-        <SiteHeader siteName={settings.siteName} />
-        <main className="flex-1">{children}</main>
-        <SiteFooter siteName={settings.siteName} tagline={settings.tagline} />
-        <Toaster />
+        <FaroProvider collectorUrl={faroCollectorUrl}>
+          <SiteHeader siteName={settings.siteName} />
+          <main className="flex-1">{children}</main>
+          <SiteFooter siteName={settings.siteName} tagline={settings.tagline} />
+          <Toaster />
+        </FaroProvider>
       </body>
     </html>
   );

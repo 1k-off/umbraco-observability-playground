@@ -66,7 +66,7 @@ public class DemoContentSeedHostedService : IHostedService
         DemoLanguageBootstrap.SetThreadCultures();
         _variationContextAccessor.VariationContext = new VariationContext(DemoLanguageBootstrap.DefaultCulture);
 
-        _contentTypeBootstrap.EnsureDocumentTypes();
+        await _contentTypeBootstrap.EnsureDocumentTypesAsync(cancellationToken);
 
         if (_contentService.GetRootContent().Any(c => c.ContentType.Alias == ContentTypeBootstrap.ArticleAlias))
         {

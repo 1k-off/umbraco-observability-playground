@@ -27,3 +27,11 @@ spec:
       port: 12345
       targetPort: 12345
       protocol: TCP
+    - name: faro
+      port: 12347
+      targetPort: 12347
+      protocol: TCP
+    - name: pyroscope-http
+      port: 4041
+      targetPort: 4041
+      protocol: TCP
