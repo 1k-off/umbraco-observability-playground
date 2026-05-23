@@ -1,0 +1,21 @@
+// Phase 4 placeholder — OTLP gateway. Phase 5 adds remote_write → Mimir,
+// loki.write, otelcol.exporter.otlp → Tempo, pyroscope.write, faro.receiver.
+// Source of truth path: observability/alloy/config.alloy
+
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+otelcol.receiver.otlp "gateway" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  // Unwired metrics/logs/traces are dropped (generally-available; no debug exporter).
+  output {}
+}

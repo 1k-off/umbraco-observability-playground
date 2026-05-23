@@ -1,0 +1,12 @@
+// Phase 4 placeholder — DaemonSet collector. Phase 5 adds pod log tailing and scrape.
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+discovery.kubernetes "pods" {
+  role = "pod"
+  namespaces {
+    names = ["demo-services", "observability"]
+  }
+}

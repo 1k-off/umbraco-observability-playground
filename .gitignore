@@ -29,3 +29,5 @@ load/k6/results/
 # K8s local
 kubeconfig.local
 secrets.local.yaml
+
+run-docs/

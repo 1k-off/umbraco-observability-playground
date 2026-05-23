@@ -1,0 +1,54 @@
+# Grafana Tempo — single-binary, external MinIO.
+# Chart: https://github.com/grafana-community/helm-charts (grafana/tempo in grafana/helm-charts is deprecated).
+#
+# helm repo add grafana-community https://grafana-community.github.io/helm-charts
+# helm upgrade --install tempo grafana-community/tempo -n observability -f values-tempo.yaml
+
+tempo:
+  extraArgs:
+    config.expand-env: "true"
+  reportingEnabled: false
+  retention: 168h
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+  storage:
+    trace:
+      backend: s3
+      s3:
+        bucket: tempo-traces
+        endpoint: minio.observability.svc.cluster.local:9000
+        access_key: ${MINIO_ROOT_USER}
+        secret_key: ${MINIO_ROOT_PASSWORD}
+        insecure: true
+  extraEnv:
+    - name: MINIO_ROOT_USER
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: MINIO_ROOT_USER
+    - name: MINIO_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: MINIO_ROOT_PASSWORD
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+
+persistence:
+  enabled: true
+  size: 10Gi
+
+service:
+  type: ClusterIP
+
+serviceMonitor:
+  enabled: false

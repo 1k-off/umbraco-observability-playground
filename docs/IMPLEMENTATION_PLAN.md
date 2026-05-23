@@ -187,25 +187,25 @@ Deploy LGTM+ stack in namespace `observability`; apps do **not** send traces yet
 
 ### Tasks
 
-1. Choose approach: **kube-prometheus-stack** + extra charts **or** Grafana helm charts (Mimir distributed / single binary, Loki, Tempo, Pyroscope)
-2. Recommended for demo: [Grafana k8s monitoring helm](https://github.com/grafana/k8s-monitoring-helm) **or** separate official charts — document in `deployment/k8s/observability/README.md`
-3. Components:
+1. [x] Choose approach: separate Grafana Helm charts + in-cluster MinIO (documented in `deployment/k8s/observability/README.md`)
+2. [x] Helm values: Mimir, Loki, Tempo, Pyroscope, Grafana, Alloy (DaemonSet + gateway)
+3. [x] Components manifests / install script:
    - Grafana (admin creds in secret)
-   - Mimir (or Prometheus remote_write → Mimir)
-   - Loki
-   - Tempo
-   - Pyroscope
-   - Grafana Alloy (DaemonSet + optional gateway Deployment)
-4. NetworkPolicies: observability can scrape apps namespace
-5. MinIO/S3 for Mimir/Loki blocks storage — prod-like demo (single-node MinIO in cluster is OK)
-6. `docs/RUNBOOK_OBSERVABILITY.md`
+   - Mimir (remote_write via gateway)
+   - Loki, Tempo, Pyroscope
+   - Grafana Alloy (DaemonSet + gateway Deployment + Service `alloy-gateway:4317`)
+   - MinIO for Mimir/Loki/Tempo blocks
+4. [x] `docs/RUNBOOK_OBSERVABILITY.md` updated
+5. [x] Deploy to cluster and verify DoD (Grafana UI, datasources, Alloy, Pyroscope)
+
+NetworkPolicies are **out of scope** for this demo (default cluster networking is sufficient).
 
 ### DoD
 
-- [ ] Grafana UI reachable (ingress or port-forward)
-- [ ] Mimir/Loki/Tempo healthy in Grafana → Connections
-- [ ] Alloy pod running (placeholder config OK)
-- [ ] Pyroscope UI/API reachable
+- [x] Grafana UI reachable (ingress or port-forward)
+- [x] Mimir/Loki/Tempo/Pyroscope datasources in Grafana → Connections
+- [x] Alloy + alloy-gateway running (placeholder config OK)
+- [x] Pyroscope UI/API reachable
 
 ---
 
@@ -341,7 +341,6 @@ eBPF auto-instrumentation without code changes; production-minded tweaks.
 
 - Beyla DaemonSet: annotations on web/cms pods
 - Compare Beyla vs OTel traces (document differences)
-- Tighten NetworkPolicies
 - Resource tuning after k6 stress
 - Backup Grafana dashboards
 
@@ -379,7 +378,7 @@ Use skills: `gh-actions-dotnet-build`, `gh-actions-nodejs-build`, `ci-cd-pipelin
 
 ## Next step for the agent
 
-**Phase 4:** `deployment/k8s/observability/` — LGTM+ stack per [RUNBOOK_OBSERVABILITY](./RUNBOOK_OBSERVABILITY.md) and [MONITORING_STACK](./MONITORING_STACK.md). Apps in `demo-services` already live; do not add app OTel/Faro until Phase 5.
+**Phase 5:** OTel/Faro in apps, full Alloy River config per [MONITORING_STACK](./MONITORING_STACK.md) and [RUNBOOK_OBSERVABILITY](./RUNBOOK_OBSERVABILITY.md). Phase 4 (LGTM+ in `observability`) is complete.
 
 **Phase 6 (later):** full k6 suite per [K6_LOAD_TESTING](./K6_LOAD_TESTING.md) — only after Phase 5 instrumentation.
 

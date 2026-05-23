@@ -31,8 +31,8 @@ Aligned with [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md):
 | 1 | Umbraco CMS ✅ |
 | 2 | Next.js + shadcn ✅ |
 | 3 | K8s apps + ingress ✅ |
-| 4 | K8s observability stack ← current |
-| 5 | OTel, Alloy, Faro, profiles |
+| 4 | K8s observability stack ✅ |
+| 5 | OTel, Alloy, Faro, profiles ← current |
 | 6 | k6 full load testing |
 | 7 | Dashboards, alerts, demo script |
 | 8 | Beyla (optional) |
@@ -51,7 +51,7 @@ Aligned with [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md):
 | Umbraco 17.4.2 | `src/umbraco/` | Phase 1 ✅ ([prod CMS](https://demo-cms.1node.tech)) |
 | Next.js | `src/umbr-fe/` | Phase 2 ✅ ([prod web](https://demo-umbr-fe.1node.tech)) |
 | App K8s | `deployment/k8s/apps/` | Phase 3 ✅ (`demo-services`) |
-| Observability K8s | `deployment/k8s/observability/` | Phase 4 ← current |
+| Observability K8s | `deployment/k8s/observability/` | Phase 4 ✅ (cluster verified) |
 | k6 | `load/k6/` | Phase 6 (after instrumentation) |
 
 Local CMS: **Podman** on `http://localhost:8080` — see [src/umbraco/README.md](./src/umbraco/README.md).  

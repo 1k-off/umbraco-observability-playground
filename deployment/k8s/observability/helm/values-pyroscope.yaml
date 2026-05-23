@@ -1,0 +1,26 @@
+# Grafana Pyroscope — single binary (demo).
+# Install: helm upgrade --install pyroscope grafana/pyroscope -n observability -f values-pyroscope.yaml
+
+pyroscope:
+  replicaCount: 1
+  extraArgs:
+    log.level: info
+  persistence:
+    enabled: true
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+service:
+  type: ClusterIP
+  port: 4040
+
+serviceMonitor:
+  enabled: false
+
+minio:
+  enabled: false

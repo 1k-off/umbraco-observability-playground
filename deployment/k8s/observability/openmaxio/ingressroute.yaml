@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: demo-openmaxio
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: openmaxio
+    app.kubernetes.io/component: object-storage-ui
+    app.kubernetes.io/part-of: demo-monitoring
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`demo-openmaxio.1node.tech`)
+      kind: Rule
+      services:
+        - name: openmaxio
+          port: 9002

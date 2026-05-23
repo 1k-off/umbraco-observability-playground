@@ -12,7 +12,7 @@ description: >-
 ## Before you act
 
 1. Read [AGENTS.md](../../../AGENTS.md)
-2. Default phase: **4** (observability stack). Phases **0–3** are complete unless the user asks for app/K8s changes.
+2. Default phase: **5** (instrumentation). Phases **0–4** are complete unless the user names another phase.
 3. Open the matching section in [docs/IMPLEMENTATION_PLAN.md](../../../docs/IMPLEMENTATION_PLAN.md)
 
 ## Phase guardrails

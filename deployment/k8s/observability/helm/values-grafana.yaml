@@ -1,0 +1,97 @@
+# Grafana UI — datasources pre-provisioned for Mimir, Loki, Tempo, Pyroscope.
+# Chart: https://github.com/grafana-community/helm-charts (grafana/grafana in grafana/helm-charts is deprecated).
+#
+# helm repo add grafana-community https://grafana-community.github.io/helm-charts
+# helm upgrade --install grafana grafana-community/grafana -n observability -f values-grafana.yaml
+#
+# Requires Secret grafana-admin (admin-user, admin-password).
+
+admin:
+  existingSecret: grafana-admin
+  userKey: admin-user
+  passwordKey: admin-password
+
+persistence:
+  enabled: true
+  size: 5Gi
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+
+# Traefik IngressRoute in ../grafana/ingressroute.yaml
+
+grafana.ini:
+  server:
+    root_url: "https://demo-grafana.1node.tech/"
+  analytics:
+    reporting_enabled: false
+  users:
+    default_theme: dark
+
+plugins:
+  - grafana-pyroscope-app
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Mimir
+        uid: mimir
+        type: prometheus
+        access: proxy
+        url: http://mimir-gateway.observability.svc.cluster.local:80/prometheus
+        isDefault: true
+        editable: false
+        jsonData:
+          httpMethod: POST
+          prometheusType: Mimir
+      - name: Loki
+        uid: loki
+        type: loki
+        access: proxy
+        url: http://loki-gateway.observability.svc.cluster.local:80
+        editable: false
+        jsonData:
+          maxLines: 1000
+      - name: Tempo
+        uid: tempo
+        type: tempo
+        access: proxy
+        url: http://tempo.observability.svc.cluster.local:3200
+        editable: false
+        jsonData:
+          tracesToLogsV2:
+            datasourceUid: loki
+            spanStartTimeShift: "-1h"
+            spanEndTimeShift: "1h"
+            filterByTraceID: true
+            filterBySpanID: false
+          tracesToMetrics:
+            datasourceUid: mimir
+          serviceMap:
+            datasourceUid: mimir
+          nodeGraph:
+            enabled: true
+          lokiSearch:
+            datasourceUid: loki
+      - name: Pyroscope
+        uid: pyroscope
+        type: grafana-pyroscope-datasource
+        access: proxy
+        url: http://pyroscope.observability.svc.cluster.local:4040
+        editable: false
+
+sidecar:
+  dashboards:
+    enabled: false

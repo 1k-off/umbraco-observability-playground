@@ -1,0 +1,58 @@
+# OpenMaxIO — community fork of MinIO Console (full-featured UI for MinIO S3 API).
+# Image: https://github.com/huncrys/minio-console
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openmaxio
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: openmaxio
+    app.kubernetes.io/component: object-storage-ui
+    app.kubernetes.io/part-of: demo-monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: openmaxio
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: openmaxio
+        app.kubernetes.io/component: object-storage-ui
+        app.kubernetes.io/part-of: demo-monitoring
+    spec:
+      containers:
+        - name: console
+          image: ghcr.io/huncrys/minio-console:v1.8.0
+          args:
+            - server
+            - --port
+            - "9002"
+          env:
+            - name: CONSOLE_MINIO_SERVER
+              value: http://minio.observability.svc.cluster.local:9000
+            - name: CONSOLE_MINIO_REGION
+              value: us-east-1
+          envFrom:
+            - secretRef:
+                name: openmaxio-console
+          ports:
+            - name: http
+              containerPort: 9002
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 256Mi

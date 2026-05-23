@@ -1,0 +1,57 @@
+# Grafana Alloy — OTLP gateway (Deployment + ClusterIP Service alloy-gateway:4317).
+# Install: helm upgrade --install alloy-gateway grafana/alloy -n observability -f values-alloy-gateway.yaml
+#
+# Phase 4: receives OTLP; empty output drops signals (no experimental debug exporter).
+# Phase 5 replaces config from observability/alloy/config.alloy.
+
+nameOverride: alloy-gateway
+fullnameOverride: alloy-gateway
+
+controller:
+  type: deployment
+  replicas: 1
+
+service:
+  enabled: false
+
+serviceMonitor:
+  enabled: false
+
+alloy:
+  stabilityLevel: generally-available
+  clustering:
+    enabled: false
+  extraPorts:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
+  configMap:
+    create: true
+    content: |
+      logging {
+        level  = "info"
+        format = "logfmt"
+      }
+
+      otelcol.receiver.otlp "gateway" {
+        grpc {
+          endpoint = "0.0.0.0:4317"
+        }
+        http {
+          endpoint = "0.0.0.0:4318"
+        }
+        // Unwired signals are dropped (Alloy GA); Phase 5 wires Mimir/Loki/Tempo.
+        output {}
+      }
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 256Mi

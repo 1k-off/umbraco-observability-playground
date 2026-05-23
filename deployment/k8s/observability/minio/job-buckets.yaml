@@ -1,0 +1,34 @@
+# Creates S3 buckets for Mimir, Loki, Tempo, Pyroscope. Run once after MinIO is Ready.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: minio-create-buckets
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/component: object-storage
+    app.kubernetes.io/part-of: demo-monitoring
+spec:
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: minio-create-buckets
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: mc
+          image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+          envFrom:
+            - secretRef:
+                name: minio-credentials
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              set -e
+              mc alias set local http://minio:9000 "${MINIO_ROOT_USER}" "${MINIO_ROOT_PASSWORD}"
+              for bucket in mimir-blocks mimir-ruler mimir-alertmanager loki-chunks tempo-traces pyroscope-data; do
+                mc mb --ignore-existing "local/${bucket}"
+              done
+              echo "Buckets ready"

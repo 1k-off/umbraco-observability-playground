@@ -1,0 +1,29 @@
+# Explicit ClusterIP for OTLP gateway (headless service from Helm may not expose named ports).
+# Apply after alloy-gateway Helm release if Service ports need adjustment.
+apiVersion: v1
+kind: Service
+metadata:
+  name: alloy-gateway
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: alloy-gateway
+    app.kubernetes.io/component: collector
+    app.kubernetes.io/part-of: demo-monitoring
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/instance: alloy-gateway
+    app.kubernetes.io/name: alloy-gateway
+  ports:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
+    - name: http-metrics
+      port: 12345
+      targetPort: 12345
+      protocol: TCP

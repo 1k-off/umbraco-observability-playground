@@ -1,0 +1,107 @@
+# Grafana Loki — SingleBinary mode, external MinIO.
+# Install: helm upgrade --install loki grafana/loki -n observability -f values-loki.yaml
+
+global:
+  # Same as values-mimir.yaml — loki-gateway nginx uses cluster DNS resolver.
+  # RKE2: rke2-coredns-rke2-coredns
+  dnsService: rke2-coredns-rke2-coredns
+  dnsNamespace: kube-system
+
+deploymentMode: SingleBinary
+
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: s3
+    bucketNames:
+      chunks: loki-chunks
+      ruler: loki-chunks
+      admin: loki-chunks
+    s3:
+      endpoint: minio.observability.svc.cluster.local:9000
+      region: us-east-1
+      accessKeyId: ${MINIO_ROOT_USER}
+      secretAccessKey: ${MINIO_ROOT_PASSWORD}
+      s3ForcePathStyle: true
+      insecure: true
+  schemaConfig:
+    configs:
+      - from: "2024-01-01"
+        store: tsdb
+        object_store: s3
+        schema: v13
+        index:
+          prefix: loki_index_
+          period: 24h
+  limits_config:
+    retention_period: 168h
+
+# SimpleScalable targets must be 0 in SingleBinary mode (chart defaults are 3 each).
+write:
+  replicas: 0
+read:
+  replicas: 0
+backend:
+  replicas: 0
+
+singleBinary:
+  replicas: 1
+  extraEnv:
+    - name: MINIO_ROOT_USER
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: MINIO_ROOT_USER
+    - name: MINIO_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: MINIO_ROOT_PASSWORD
+  persistence:
+    enabled: true
+    size: 10Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+
+gateway:
+  enabled: true
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+monitoring:
+  selfMonitoring:
+    enabled: false
+    grafanaAgent:
+      installOperator: false
+  lokiCanary:
+    enabled: false
+
+test:
+  enabled: false
+
+# Distributed mode — not used with deploymentMode: SingleBinary
+ingester:
+  replicas: 0
+querier:
+  replicas: 0
+queryFrontend:
+  replicas: 0
+queryScheduler:
+  replicas: 0
+distributor:
+  replicas: 0
+compactor:
+  replicas: 0
+indexGateway:
+  replicas: 0

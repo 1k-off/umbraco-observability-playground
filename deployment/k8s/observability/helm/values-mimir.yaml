@@ -1,0 +1,157 @@
+# Grafana Mimir (distributed) — demo sizing, external MinIO.
+# Install: helm upgrade --install mimir grafana/mimir-distributed -n observability -f values-mimir.yaml
+#
+# Chart: https://github.com/grafana/mimir/tree/main/operations/helm/charts/mimir-distributed
+
+minio:
+  enabled: false
+
+global:
+  # mimir-gateway nginx resolves upstreams via cluster DNS at startup.
+  # Default chart uses Service kube-dns; many clusters only expose coredns (RKE2/k3s/etc.).
+  # If gateway CrashLoops: host not found in resolver "kube-dns...":
+  #   kubectl get svc -n kube-system | grep -Ei 'dns|coredns'
+  # RKE2: rke2-coredns-rke2-coredns | vanilla/k3s: often coredns or kube-dns
+  dnsService: rke2-coredns-rke2-coredns
+  dnsNamespace: kube-system
+  extraEnv:
+    - name: MINIO_ROOT_USER
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: MINIO_ROOT_USER
+    - name: MINIO_ROOT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: minio-credentials
+          key: MINIO_ROOT_PASSWORD
+
+mimir:
+  structuredConfig:
+    common:
+      storage:
+        backend: s3
+        s3:
+          endpoint: minio.observability.svc.cluster.local:9000
+          access_key_id: ${MINIO_ROOT_USER}
+          secret_access_key: ${MINIO_ROOT_PASSWORD}
+          insecure: true
+    blocks_storage:
+      s3:
+        bucket_name: mimir-blocks
+    ruler_storage:
+      s3:
+        bucket_name: mimir-ruler
+    alertmanager_storage:
+      s3:
+        bucket_name: mimir-alertmanager
+
+# Demo: single replica per component, no zone replication
+alertmanager:
+  replicas: 1
+  persistentVolume:
+    enabled: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+compactor:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+distributor:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+ingester:
+  replicas: 1
+  zoneAwareReplication:
+    enabled: false
+  persistentVolume:
+    enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+
+querier:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+query_frontend:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+store_gateway:
+  replicas: 1
+  zoneAwareReplication:
+    enabled: false
+  persistentVolume:
+    enabled: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+ruler:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+overrides_exporter:
+  replicas: 1
+
+gateway:
+  enabled: true
+  replicas: 1
+  # Optional explicit resolver (overrides global.dnsService). Use if dnsService alone is not enough:
+  # nginx:
+  #   config:
+  #     resolver: "coredns.kube-system.svc.cluster.local."
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+metaMonitoring:
+  dashboards:
+    enabled: false
+  serviceMonitor:
+    enabled: false
+  prometheusRule:
+    enabled: false
+  grafanaAgent:
+    enabled: false

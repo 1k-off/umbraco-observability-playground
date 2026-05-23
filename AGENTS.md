@@ -100,13 +100,13 @@ See [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md). Summary:
 | 1 | Umbraco: content model, API, health ✅ | `/health`, `/ready` only |
 | 2 | Next.js: pages, shadcn, CMS calls ✅ | Health only |
 | 3 | K8s: apps, DB, ingress ✅ | None |
-| 4 | K8s: observability namespace | Stack Helm/YAML |
+| 4 | K8s: observability namespace ✅ | Stack Helm/YAML |
 | 5 | Alloy, exporters, OTel, Faro | Yes |
 | 6 | k6: full suite (smoke, load, stress, spike, cms-direct) | Uses full stack |
 | 7 | Dashboards, recording rules, demo runbook | Yes |
 | 8 | Beyla (opt.), hardening | Yes |
 
-**Default phase for agents: 4** unless the user names another phase. Phases 0–3 (docs, Umbraco, Next.js, K8s apps in `demo-services`) are complete. Default focus: `deployment/k8s/observability/`. **Phase 6** is full k6 in `load/k6/` — only after Phase 5 instrumentation.
+**Default phase for agents: 5** unless the user names another phase. Phases 0–4 (docs, apps, K8s `demo-services`, LGTM+ in `observability`) are complete. Default focus: app instrumentation (`src/`, `observability/alloy/`). **Phase 6** is full k6 in `load/k6/` — only after Phase 5 instrumentation.
 
 ## Code conventions (when implementation starts)
 
@@ -144,7 +144,7 @@ See [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md). Summary:
 - [x] Phase 1 criteria in IMPLEMENTATION_PLAN are met (Umbraco; verified prod health/Delivery API)
 - [x] Phase 2 criteria in IMPLEMENTATION_PLAN (Next.js web)
 - [x] Phase 3 criteria in IMPLEMENTATION_PLAN (K8s apps; prod Ingress verified)
-- [ ] Phase criteria for the **active** phase (4: observability stack) are met
+- [ ] Phase criteria for the **active** phase (5: instrumentation) are met
 - [x] README / docs updated for Phase 1–3 closure
 - [ ] Full k6 suite passes on k8s (Phase 6; after instrumentation)
 - [ ] No secrets in git
