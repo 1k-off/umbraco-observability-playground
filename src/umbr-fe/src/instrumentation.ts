@@ -1,5 +1,5 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
-    await import("./src/instrumentation.node");
+    await import("./instrumentation.node");
   }
 }

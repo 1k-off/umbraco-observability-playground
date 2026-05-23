@@ -33,10 +33,14 @@ spec:
           resources:
             requests:
               cpu: 100m
-              memory: 256Mi
+              memory: 384Mi
             limits:
               cpu: "1"
-              memory: 512Mi
+              memory: 768Mi
+          securityContext:
+            # Helps file descriptor limits for Node/Next in Alpine (with entrypoint ulimit).
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
           startupProbe:
             httpGet:
               path: /api/health

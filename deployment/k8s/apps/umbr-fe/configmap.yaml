@@ -10,6 +10,9 @@ data:
   NODE_ENV: "production"
   PORT: "3000"
   HOSTNAME: "0.0.0.0"
+  # Fewer inotify watchers in K8s (avoids fsnotify spam in Loki).
+  WATCHPACK_POLLING: "true"
+  CHOKIDAR_USEPOLLING: "true"
   # BFF + SSR fetch (public CMS URL — media URLs in HTML must be browser-reachable)
   CMS_BASE_URL: "https://demo-cms.1node.tech"
   NEXT_PUBLIC_SITE_URL: "https://demo-umbr-fe.1node.tech"

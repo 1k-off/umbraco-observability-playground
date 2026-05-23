@@ -7,6 +7,9 @@ import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import Pyroscope from "@pyroscope/nodejs";
 
+// Visible in pod logs after deploy — confirms Next instrumentation hook ran.
+console.log("[obs] starting Node OTel/Pyroscope", process.env.OTEL_SERVICE_NAME);
+
 const serviceName = process.env.OTEL_SERVICE_NAME ?? "umbraco-web";
 const deploymentEnvironment = process.env.OTEL_DEPLOYMENT_ENVIRONMENT ?? "demo";
 

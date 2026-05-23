@@ -173,6 +173,10 @@ sum(rate(traces_spanmetrics_calls_total{service=~"umbraco.*"}[5m])) by (service)
 | Symptom | Check |
 |---------|--------|
 | Loki: no logs with `namespace`/`pod` | Query `{job="loki.source.kubernetes.demo_pods"}`; sync + `helm upgrade alloy` DaemonSet config |
+| Loki CMS: `trace_id` filter empty | Serilog uses **`TraceId`** (PascalCase): `{service_name="demo-umbraco"} \|= "TraceId"` |
+| Tempo OOM / Grafana errors | `kubectl -n observability logs statefulset/tempo --tail=50` (STS, not Deployment) |
+| Web: no Mimir/Pyroscope | Next hook: `src/instrumentation.ts`; pod log should show `[obs] starting Node OTel` |
+| FE Loki: fsnotify spam | `WATCHPACK_POLLING` in ConfigMap + `docker-entrypoint.sh` ulimit; query `!= "fsnotify"` |
 | mimir-gateway / loki-gateway nginx: `host not found in resolver "kube-dns..."` | Set `global.dnsService` to your cluster DNS Service (`kubectl get svc -n kube-system`). **RKE2:** `rke2-coredns-rke2-coredns` (see [values-mimir.yaml](../deployment/k8s/observability/helm/values-mimir.yaml)). Then `helm upgrade mimir ...` |
 | Loki install: `more than zero replicas` for single binary and scalable | In [values-loki.yaml](../deployment/k8s/observability/helm/values-loki.yaml) set `write`/`read`/`backend` `replicas: 0` with `singleBinary.replicas: 1` |
 | Tempo: `Access Key Id ... does not exist` | Chart must set `tempo.extraArgs.config.expand-env: "true"` and `tempo.extraEnv` from `minio-credentials` ([values-tempo.yaml](../deployment/k8s/observability/helm/values-tempo.yaml)); Secret must match running MinIO |
