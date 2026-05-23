@@ -8,31 +8,33 @@ Phased plan with Definition of Done criteria. **Do not advance to the next phase
 
 ```mermaid
 flowchart LR
-  P0[Phase 0 Docs] --> P1[Phase 1 Umbraco]
-  P1 --> P2[Phase 2 Next.js]
-  P2 --> P3[Phase 3 k6]
-  P3 --> P4[Phase 4 K8s Apps]
-  P4 --> P5[Phase 5 K8s Obs]
-  P5 --> P6[Phase 6 Instrument]
+  P0[Phase 0 Docs] --> P1[Phase 1 Umbraco ✅]
+  P1 --> P2[Phase 2 Next.js ✅]
+  P2 --> P3[Phase 3 K8s Apps ✅]
+  P3 --> P4[Phase 4 K8s Obs]
+  P4 --> P5[Phase 5 Instrument]
+  P5 --> P6[Phase 6 k6 load]
   P6 --> P7[Phase 7 Dashboards]
   P7 --> P8[Phase 8 Beyla optional]
 ```
 
 | Phase | Name | Duration (estimate) | Observability in code |
 |-------|------|---------------------|------------------------|
-| 0 | Planning and AGENTS | ✅ current | None |
-| 1 | Umbraco headless | 3–5 days | Health only |
-| 2 | Next.js + shadcn | 3–5 days | Health only |
-| 3 | k6 load testing | 2–3 days | None |
-| 4 | Kubernetes (apps) | 2–4 days | None |
-| 5 | Kubernetes (obs stack) | 3–5 days | Infra only |
-| 6 | Instrumentation | 4–6 days | Full |
+| 0 | Planning and AGENTS | ✅ done | None |
+| 1 | Umbraco headless | ✅ done | Health only |
+| 2 | Next.js + shadcn | ✅ done | Health only |
+| 3 | Kubernetes (apps) | ✅ done | None |
+| 4 | Kubernetes (obs stack) | 3–5 days | Infra only |
+| 5 | Instrumentation | 4–6 days | Full |
+| 6 | k6 load testing | 3–5 days | Uses full stack |
 | 7 | Dashboards and demo | 3–4 days | Alerts |
 | 8 | Beyla + hardening | 2–3 days | eBPF |
 
+**Order rationale:** deploy apps and the LGTM+ stack, wire OTel/Faro/Alloy, **then** run the full k6 programme so load exercises real metrics, traces, logs, profiles, and RUM — not only smoke checks.
+
 ---
 
-## Phase 0 — Planning (current)
+## Phase 0 — Planning (complete)
 
 ### Goal
 
@@ -45,12 +47,14 @@ Lock architecture, application specs, monitoring stack, and agent rules.
 - [x] `docs/APPLICATION_SPEC.md`
 - [x] `docs/MONITORING_STACK.md`
 - [x] `docs/K6_LOAD_TESTING.md`
+- [x] `docs/API_CMS.md`, `docs/BASELINE.md`, `docs/DEMO_SCRIPT.md` (stubs where noted)
+- [x] `deployment/k8s/sqlserver/README.md`
 - [x] `.cursor/rules/`, `.cursor/skills/`
 
 ### DoD
 
 - Agent can start Phase 1 without extra repo structure clarifications
-- User confirmed: **SQL Server** or **PostgreSQL** (see defaults below)
+- Default DB: **SQL Server** in remote K8s (PostgreSQL only if user explicitly requests a change)
 
 ### Default decisions (unless user specifies otherwise)
 
@@ -65,7 +69,7 @@ Lock architecture, application specs, monitoring stack, and agent rules.
 
 ---
 
-## Phase 1 — Umbraco headless (sample CMS)
+## Phase 1 — Umbraco headless (complete)
 
 ### Goal
 
@@ -73,21 +77,23 @@ Full headless CMS with Delivery API, demo content, and load-friendly endpoints.
 
 ### Tasks
 
-1. Solution in `src/umbraco/` (ASP.NET Core + Umbraco 17.4.2)
-2. Content types (see [APPLICATION_SPEC](./APPLICATION_SPEC.md)):
-   - `article` (title, slug, body, category, publishDate, author)
-   - `category` (name, slug)
-   - `author` (name, bio, avatar media)
+1. [x] Solution in `src/umbraco/` (ASP.NET Core + Umbraco 17.4.2, `global.json`)
+2. [x] Content types (see [APPLICATION_SPEC](./APPLICATION_SPEC.md)):
+   - `article` (title, slug, excerpt, body, featuredImage, category, publishDate, author)
+   - `category` (name, slug, description)
+   - `author` (name, slug, bio, avatar media)
    - `siteSettings` (singleton)
-3. Delivery API: article list/detail, filter by category, pagination
-4. Search: Examine/Lucene endpoint `GET /umbraco/api/search?q=`
-5. Media: seed images; Delivery API media URLs
-6. Optional “heavy” endpoint for k6: `GET /umbraco/api/demo/slow?delayMs=` (dev/demo only, feature flag)
-7. `GET /health`, `GET /ready` (DB ping)
-8. Structured logging to stdout (no trace_id until Phase 6)
-9. Seed: CLI or one-shot `IHostedService` — N articles (≥100), 5 categories, 10 authors
-10. Multi-stage `Dockerfile`
-11. `.env.example`, `appsettings.Development.json` template
+3. [x] Delivery API: article list/detail, filter by category, pagination
+4. [x] Search: Examine/Lucene endpoint `GET /umbraco/api/search?q=`
+5. [x] Media: seed images; Delivery API media URLs
+6. [x] Optional “heavy” endpoint for k6: `GET /umbraco/api/demo/slow?delayMs=` (dev/demo only, feature flag)
+7. [x] `GET /health`, `GET /ready` (DB ping)
+8. [x] Structured logging to stdout (`requestId`; no trace_id until Phase 5)
+9. [x] Seed: `DemoContentSeedHostedService` — 100 articles, 5 categories, 10 authors, media
+10. [x] Multi-stage `Containerfile` (see `src/umbraco/README.md`)
+11. [x] `.env.example`, local `appsettings.Development.json` (gitignored; see `src/umbraco/README.md`)
+
+**Phase 3 (done):** `deployment/k8s/apps/umbraco/` + [`.github/workflows/umbraco-container.yml`](../.github/workflows/umbraco-container.yml) — `https://demo-cms.1node.tech`.
 
 ### Do not in Phase 1
 
@@ -97,15 +103,15 @@ Full headless CMS with Delivery API, demo content, and load-friendly endpoints.
 
 ### DoD
 
-- [ ] Locally: `dotnet run` + seed → Delivery API returns content
-- [ ] `/health` → 200, `/ready` → 200 when DB is available
-- [ ] Docker image builds
-- [ ] Postman/curl collection or `docs/API_CMS.md` with request examples
-- [ ] ≥3 request types suitable for k6 (list, detail, search)
+- [x] Locally: Podman/Docker run + seed → Delivery API returns content (no host .NET SDK required)
+- [x] `/health` → 200, `/ready` → 200 when DB is available
+- [x] Docker image builds (CI: `umbraco-container.yml`; GHCR)
+- [x] `docs/API_CMS.md` with request examples
+- [x] ≥3 request types suitable for k6 (Delivery list/detail, search, demo slow/fault)
 
 ---
 
-## Phase 2 — Next.js frontend (sample web)
+## Phase 2 — Next.js frontend (complete)
 
 ### Goal
 
@@ -113,21 +119,22 @@ Public site on Next.js + shadcn consuming Umbraco Delivery API, with routes for 
 
 ### Tasks
 
-1. App in `src/web/` (Next.js, TypeScript, Tailwind, shadcn init)
-2. Pages:
+1. [x] App in `src/umbr-fe/` (Next.js, TypeScript, Tailwind, shadcn init)
+2. [x] Pages:
    - `/` — hero + latest articles
    - `/articles` — paginated list with optional `?category=` filter
    - `/articles/[slug]` — detail
    - `/search?q=` — search (CMS search API)
    - `/about` — static content from siteSettings
-3. Route Handlers (BFF if needed):
+3. [x] Route Handlers (BFF):
    - `GET /api/articles`, `GET /api/articles/[slug]`, `GET /api/search`
    - Cache: `revalidate` 60s for lists, 300s for details (configurable)
-4. UI: shadcn Card, Button, Input, Skeleton, Pagination
-5. `GET /api/health` for probes
-6. Env: `CMS_BASE_URL`, `NEXT_PUBLIC_SITE_URL`
-7. `Dockerfile` (standalone output)
-8. Error boundary, 404 for unknown slug
+4. [x] UI: shadcn Card, Button, Input, Skeleton, Pagination
+5. [x] `GET /api/health` for probes
+6. [x] Env: `CMS_BASE_URL`, `NEXT_PUBLIC_SITE_URL`
+7. [x] `Dockerfile` (standalone output)
+8. [x] Error boundary, 404 for unknown slug
+9. [x] K8s + CI (Phase 3): `deployment/k8s/apps/umbr-fe/`, [`.github/workflows/umbr-fe-container.yml`](../.github/workflows/umbr-fe-container.yml); prod `https://demo-umbr-fe.1node.tech`
 
 ### Do not in Phase 2
 
@@ -136,36 +143,15 @@ Public site on Next.js + shadcn consuming Umbraco Delivery API, with routes for 
 
 ### DoD
 
-- [ ] `npm run build` succeeds
-- [ ] All spec pages work against local CMS
-- [ ] Docker image builds
-- [ ] Lighthouse is not a goal; functionality and SSR/ISR matter more
+- [x] `npm run build` succeeds
+- [x] All spec pages work against CMS (local + prod Delivery API)
+- [x] `src/umbr-fe/Dockerfile` (standalone); Podman/GHCR image builds
+- [x] Prod: `https://demo-umbr-fe.1node.tech` — pages, BFF, CMS media via `/_next/image` (hairpin NAT on router)
+- [x] Lighthouse is not a goal; functionality and SSR/ISR matter more
 
 ---
 
-## Phase 3 — k6 load testing
-
-### Goal
-
-Reproducible load before and after monitoring; baseline SLOs.
-
-### Tasks
-
-1. `load/k6/` — smoke, load, stress, spike (see [K6_LOAD_TESTING](./K6_LOAD_TESTING.md))
-2. Thresholds for smoke/load
-3. Script `make load-smoke` or `npm run k6:smoke` / `pwsh ./scripts/k6-smoke.ps1`
-4. Document baseline RPS and p95 **without** observability overhead
-5. Optional: k6 cloud output — not required
-
-### DoD
-
-- [ ] Smoke < 2 min, exit 0 on docker-compose or local URLs
-- [ ] Load 10 min stably meets target RPS (see K6 doc)
-- [ ] Baseline recorded in `docs/BASELINE.md`
-
----
-
-## Phase 4 — Kubernetes (applications)
+## Phase 3 — Kubernetes (applications) (complete)
 
 ### Goal
 
@@ -173,25 +159,27 @@ Umbraco + Web + DB + Ingress in cluster; no observability namespace.
 
 ### Tasks
 
-1. SQL Server in `deployment/k8s/sqlserver/` — namespace `sqlserver`, LB IP `10.255.0.101` (cluster MetalLB configured separately)
-2. `deployment/k8s/apps/namespace.yaml` — namespace `umbraco-demo`
-3. Umbraco Deployment + Service + PVC (media/local temp); DB connection to `mssql2025.sqlserver.svc` or `10.255.0.101`
-4. Web Deployment + Service
-5. Ingress: `cms.demo.local`, `web.demo.local` (or single host with path prefix)
-6. ConfigMaps/Secrets from examples
-7. HPA for web (CPU 70%, min 2 max 5) — optional for demo
-8. `docs/RUNBOOK_LOCAL_K8S.md` — kind/k3d up, deploy, port-forward
+1. [x] SQL Server in `deployment/k8s/sqlserver/` — namespace `sqlserver`, LB IP `10.255.0.101` (cluster MetalLB configured separately)
+2. [x] `deployment/k8s/apps/namespace.yaml` — namespace `demo-services` (CI/runbook default)
+3. [x] Umbraco Deployment + Service + PVC (media/local temp); DB connection to `mssql2025.sqlserver.svc` or `10.255.0.101` — `deployment/k8s/apps/umbraco/`
+4. [x] Web Deployment + Service — `deployment/k8s/apps/umbr-fe/` (`demo-services`)
+5. [x] Ingress — Traefik `demo-umbr-fe.1node.tech` (+ CMS host; see runbook)
+6. [x] ConfigMap for web (no Secret required)
+7. [x] HPA for web (CPU 70%, min 2 max 5)
+8. [x] `docs/RUNBOOK_LOCAL_K8S.md` — remote cluster deploy, verify, port-forward
+
+No root Kustomization required — apply `umbraco/` and `umbr-fe/` separately with `-n demo-services`.
 
 ### DoD
 
-- [ ] `kubectl apply -f deployment/k8s/apps/` brings up the stack
-- [ ] Ingress serves frontend and CMS API
-- [ ] k6 smoke against Ingress URL — exit 0
-- [ ] Rollout restart does not break readiness
+- [x] Namespace `demo-services` applied (manifest in repo; CI deploy target)
+- [x] Umbraco + web pods Ready; Ingress serves frontend and CMS API — prod: `https://demo-cms.1node.tech`, `https://demo-umbr-fe.1node.tech` (health/ready/Delivery API verified)
+- [x] Rollout restart does not break readiness (verified on deploy cluster)
+- [x] k6 is **not** required in this phase (full load testing is **Phase 6**, after instrumentation)
 
 ---
 
-## Phase 5 — Kubernetes (observability stack)
+## Phase 4 — Kubernetes (observability stack)
 
 ### Goal
 
@@ -200,7 +188,7 @@ Deploy LGTM+ stack in namespace `observability`; apps do **not** send traces yet
 ### Tasks
 
 1. Choose approach: **kube-prometheus-stack** + extra charts **or** Grafana helm charts (Mimir distributed / single binary, Loki, Tempo, Pyroscope)
-2. Recommended for demo: [Grafana k8s monitoring helm](https://github.com/grafana/k8s-monitoring-helm) **or** separate official charts — document in `deploy/k8s/observability/README.md`
+2. Recommended for demo: [Grafana k8s monitoring helm](https://github.com/grafana/k8s-monitoring-helm) **or** separate official charts — document in `deployment/k8s/observability/README.md`
 3. Components:
    - Grafana (admin creds in secret)
    - Mimir (or Prometheus remote_write → Mimir)
@@ -221,7 +209,7 @@ Deploy LGTM+ stack in namespace `observability`; apps do **not** send traces yet
 
 ---
 
-## Phase 6 — Application instrumentation and Alloy
+## Phase 5 — Application instrumentation and Alloy
 
 ### Goal
 
@@ -229,7 +217,7 @@ End-to-end metrics, logs, traces, profiles, RUM.
 
 ### Tasks
 
-### 6.1 Umbraco / .NET
+### 5.1 Umbraco / .NET
 
 - OpenTelemetry: ASP.NET Core, HttpClient, SQL
 - OTLP exporter → Alloy gateway Service
@@ -238,14 +226,14 @@ End-to-end metrics, logs, traces, profiles, RUM.
 - Pyroscope .NET SDK continuous profiling
 - Logs: Serilog → JSON stdout with `trace_id`/`span_id` (log correlation)
 
-### 6.2 Next.js
+### 5.2 Next.js
 
 - `@opentelemetry/sdk-node` or Vercel OTel pattern for Node server
 - Route handlers: spans for CMS fetch
 - Faro: `@grafana/faro-web-sdk` + `@grafana/faro-web-tracing`
 - Faro collector endpoint (Alloy `faro.receiver` or Grafana Faro collector)
 
-### 6.3 Alloy
+### 5.3 Alloy
 
 - `prometheus.scrape` for annotated pods
 - `otelcol.receiver.otlp` → `otelcol.exporter.otlp` (Tempo)
@@ -253,7 +241,7 @@ End-to-end metrics, logs, traces, profiles, RUM.
 - `prometheus.remote_write` → Mimir
 - `pyroscope.receive_http` / scrape config
 
-### 6.4 Service graph
+### 5.4 Service graph
 
 - `service.name`: `umbraco-cms`, `umbraco-web`
 - `deployment.environment`: `demo`
@@ -263,8 +251,56 @@ End-to-end metrics, logs, traces, profiles, RUM.
 - [ ] Trace browser → web → cms → sql visible in Tempo (Grafana Explore)
 - [ ] Web logs contain trace_id matching the trace
 - [ ] RED metrics for both services in Mimir
-- [ ] Profiles in Pyroscope for .NET and Node under k6 load
+- [ ] Profiles in Pyroscope for .NET and Node (light traffic; full validation under k6 in Phase 6)
 - [ ] Faro sessions/events in Grafana (Faro data source)
+
+---
+
+## Phase 6 — k6 load testing
+
+### Goal
+
+**Full** load-testing programme against the instrumented stack — not smoke-only. Prove SLOs, record baselines, and drive visible signals in Grafana (metrics, traces, logs, profiles, RUM).
+
+### Scope (required)
+
+Implement everything in [K6_LOAD_TESTING](./K6_LOAD_TESTING.md):
+
+| Scenario | Role |
+|----------|------|
+| `smoke.js` | CI / quick regression (1–2 min) |
+| `load.js` | Main mixed workload (~10 min, ramp VUs) |
+| `stress.js` | Find degradation / limits |
+| `spike.js` | Sudden traffic burst |
+| `cms-direct.js` | CMS-only isolation (Delivery API, search) |
+| `load/k6/lib/` | Shared helpers (URLs, checks, tags) |
+| `load/k6/data/` | `slugs.json`, `search-terms.json` from seed |
+
+Optional in Phase 6: `browser.js` (Faro + RUM) if Faro is stable.
+
+### Tasks
+
+1. Implement all scenario files under `load/k6/`
+2. Thresholds per scenario; tune after first runs on k8s Ingress URLs
+3. Runners: `pwsh ./scripts/k6-smoke.ps1`, optional `npm run k6:smoke` / `make load-smoke`
+4. Fill `docs/BASELINE.md` — primary target: **k8s** (`demo-umbr-fe`, `demo-cms`); optional local section
+5. Document correlation checklist: run `load.js` → verify RED in Mimir, traces in Tempo, logs with `trace_id`, Pyroscope flames, Faro sessions
+6. Optional: k6 Prometheus remote write for a unified dashboard — not required
+
+### Do not in Phase 6
+
+- Treat smoke as sufficient for phase closure
+- Run full stress/spike as blocking CI on every PR (nightly/manual only)
+
+### DoD
+
+- [ ] **smoke** — exit 0 on k8s Ingress URLs (&lt; 2 min)
+- [ ] **load** — 10 min run meets thresholds in K6 doc
+- [ ] **stress** and **spike** — scripts run to completion; knee point / failure mode documented (no strict p95)
+- [ ] **cms-direct** — exit 0; isolates CMS in Grafana
+- [ ] `docs/BASELINE.md` filled (RPS, p95, error rate per scenario)
+- [ ] Correlation checklist passed once (load visible in Mimir/Tempo/Loki/Pyroscope; Faro if browser scenario used)
+- [ ] New load-bearing routes update [K6_LOAD_TESTING](./K6_LOAD_TESTING.md) and scenarios
 
 ---
 
@@ -320,10 +356,10 @@ eBPF auto-instrumentation without code changes; production-minded tweaks.
 
 | Phase | CI |
 |-------|-----|
-| 1 | `dotnet build`, `dotnet test` |
+| 1 | `umbraco-container.yml` (build/push GHCR, deploy K8s); optional `dotnet test` later |
 | 2 | `npm ci`, `lint`, `build` |
-| 3 | k6 smoke in pipeline (optional, nightly load) |
-| 4+ | Build images, push registry, deploy workflow (manual approve) |
+| 3–4 | Build images, push registry, deploy workflows |
+| 6 | k6 smoke on PR (optional); load/stress nightly or manual |
 
 Use skills: `gh-actions-dotnet-build`, `gh-actions-nodejs-build`, `ci-cd-pipeline-foundation`.
 
@@ -343,6 +379,8 @@ Use skills: `gh-actions-dotnet-build`, `gh-actions-nodejs-build`, `ci-cd-pipelin
 
 ## Next step for the agent
 
-**Phase 1:** create `src/cms/` solution, content model, seed, health, Dockerfile — per [APPLICATION_SPEC](./APPLICATION_SPEC.md).
+**Phase 4:** `deployment/k8s/observability/` — LGTM+ stack per [RUNBOOK_OBSERVABILITY](./RUNBOOK_OBSERVABILITY.md) and [MONITORING_STACK](./MONITORING_STACK.md). Apps in `demo-services` already live; do not add app OTel/Faro until Phase 5.
 
-User must explicitly say “start Phase 1” or clarify DB/K8s target.
+**Phase 6 (later):** full k6 suite per [K6_LOAD_TESTING](./K6_LOAD_TESTING.md) — only after Phase 5 instrumentation.
+
+User must explicitly name the phase before mixing work from other phases.

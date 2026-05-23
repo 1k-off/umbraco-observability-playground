@@ -4,7 +4,7 @@ Instructions for AI agents (Cursor, etc.) working in this repository.
 
 ## Project mission
 
-Build a **full monitoring demo** for **headless Umbraco + Next.js (shadcn)** on **Kubernetes**. Sample applications must be **production-like** (real functionality, loadable with **k6**). Observability is added **incrementally**, not before applications and baseline load scenarios are ready.
+Build a **full monitoring demo** for **headless Umbraco + Next.js (shadcn)** on **Kubernetes**. Sample applications must be **production-like** (real functionality, loadable with **k6**). Deploy apps and instrumentation first; **full k6 load testing** (Phase 6) runs against the instrumented stack.
 
 ## Required reading before work
 
@@ -17,11 +17,16 @@ Before any implementation, read the relevant files:
 | Architecture and service boundaries | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
 | Mimir/Loki/Tempo/Alloy/Faro/Beyla | [docs/MONITORING_STACK.md](./docs/MONITORING_STACK.md) |
 | k6 scenarios and SLOs | [docs/K6_LOAD_TESTING.md](./docs/K6_LOAD_TESTING.md) |
+| CMS HTTP examples | [docs/API_CMS.md](./docs/API_CMS.md) |
+| k6 baseline numbers | [docs/BASELINE.md](./docs/BASELINE.md) |
+| Demo walkthrough | [docs/DEMO_SCRIPT.md](./docs/DEMO_SCRIPT.md) |
+| K8s apps deploy | [docs/RUNBOOK_LOCAL_K8S.md](./docs/RUNBOOK_LOCAL_K8S.md) (Phase 3 ✅) |
+| Observability deploy | [docs/RUNBOOK_OBSERVABILITY.md](./docs/RUNBOOK_OBSERVABILITY.md) (Phase 4) |
 
 ## Hard rules
 
 1. **Do not skip ahead.** Monitoring code (OTel SDK, Faro, Alloy config, Helm observability) only when [IMPLEMENTATION_PLAN](./docs/IMPLEMENTATION_PLAN.md) explicitly allows it for the current phase.
-2. **Applications first, signals second.** Phases 1–3 (apps + k6 + K8s apps) without a full observability stack.
+2. **Applications first, signals second.** Phases 1–5 (apps, K8s, obs stack, instrumentation) before **Phase 6** full k6 load testing.
 3. **Minimal diff.** One phase / one logical PR chunk — one area of change. Do not refactor unrelated code.
 4. **k6 is mandatory.** Any new load-bearing endpoint or user flow — update [docs/K6_LOAD_TESTING.md](./docs/K6_LOAD_TESTING.md) and add/extend a scenario.
 5. **No secrets in git.** Connection strings, API keys, Grafana admin — only `.env.example`, K8s Secret templates, documentation.
@@ -38,12 +43,12 @@ Before any implementation, read the relevant files:
 ├── docs/                    # Plans and specs (source of truth for agents)
 ├── src/
 │   ├── umbraco/             # Umbraco headless (.NET)
-│   └── web/                 # Next.js + shadcn
+│   └── umbr-fe/             # Next.js + shadcn
 ├── deployment/
 │   └── k8s/
 │       ├── sqlserver/       # SQL Server StatefulSet (remote cluster)
-│       ├── apps/            # Umbraco, web, ingress (Phase 4)
-│       └── observability/   # Grafana stack (Phase 5)
+│       ├── apps/            # Umbraco, web, ingress (Phase 3 ✅)
+│       └── observability/   # Grafana stack (Phase 4)
 ├── docker-compose.yml       # Local apps; CMS uses remote SQL (Phase 1+)
 ├── load/
 │   └── k6/                  # Scenarios, thresholds, helpers
@@ -63,7 +68,7 @@ Directories `src/`, `deployment/`, `load/` may not exist yet — create them acc
 - **No local .NET SDK required** — build and run Umbraco via **Docker** only.
 - **Kubernetes is remote** — apply manifests with `kubectl` to the remote cluster.
 - **SQL Server runs in remote K8s** — namespace `sqlserver`, LB IP `10.255.0.101:1433` (cluster MetalLB not in repo); see `deployment/k8s/sqlserver/README.md`.
-- **Local Docker Compose** runs app services (CMS, web); Umbraco connects to SQL at `10.255.0.101` (see `.env.example`).
+- **Local containers** (Podman/Docker; Compose when added) run app services; Umbraco connects to SQL at `10.255.0.101` (see `.env.example`, `src/umbraco/README.md`).
 
 ## Technology stack
 
@@ -73,7 +78,7 @@ Directories `src/`, `deployment/`, `load/` may not exist yet — create them acc
 | API host | ASP.NET Core | Standard Umbraco host |
 | Frontend | Next.js (App Router), TypeScript | SSR/ISR where appropriate |
 | UI | shadcn/ui + Tailwind | Shared design system |
-| DB | SQL Server (or PostgreSQL — decide in Phase 1) | Umbraco persistence |
+| DB | SQL Server (remote K8s; see `deployment/k8s/sqlserver/`) | Umbraco persistence |
 | Orchestration | Kubernetes | Ingress, HPA as needed |
 | Metrics | Prometheus → **Mimir** | Via Alloy scrape |
 | Logs | **Loki** | Structured logs, trace_id in logs |
@@ -92,16 +97,16 @@ See [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md). Summary:
 | Phase | Agent focus | Observability |
 |-------|-------------|---------------|
 | 0 | Documentation, repo skeleton | None |
-| 1 | Umbraco: content model, API, health | `/health`, `/ready` only |
-| 2 | Next.js: pages, shadcn, CMS calls | Health only |
-| 3 | k6: smoke + load + stress | None |
-| 4 | K8s: apps, DB, ingress | None |
-| 5 | K8s: observability namespace | Stack Helm/YAML |
-| 6 | Alloy, exporters, OTel, Faro | Yes |
+| 1 | Umbraco: content model, API, health ✅ | `/health`, `/ready` only |
+| 2 | Next.js: pages, shadcn, CMS calls ✅ | Health only |
+| 3 | K8s: apps, DB, ingress ✅ | None |
+| 4 | K8s: observability namespace | Stack Helm/YAML |
+| 5 | Alloy, exporters, OTel, Faro | Yes |
+| 6 | k6: full suite (smoke, load, stress, spike, cms-direct) | Uses full stack |
 | 7 | Dashboards, recording rules, demo runbook | Yes |
 | 8 | Beyla (opt.), hardening | Yes |
 
-**Default current phase: 0** (planning completed with this doc set). User will specify moving to Phase 1.
+**Default phase for agents: 4** unless the user names another phase. Phases 0–3 (docs, Umbraco, Next.js, K8s apps in `demo-services`) are complete. Default focus: `deployment/k8s/observability/`. **Phase 6** is full k6 in `load/k6/` — only after Phase 5 instrumentation.
 
 ## Code conventions (when implementation starts)
 
@@ -110,23 +115,23 @@ See [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md). Summary:
 - Headless: Delivery API + Management API for seed/admin only, not for the public frontend.
 - Pin .NET and Umbraco versions in `global.json` / README when creating the solution.
 - Required endpoints: `GET /health`, `GET /ready` (ready checks DB).
-- Logging: structured (JSON to stdout) with `trace_id`, `span_id` — **from Phase 6**; before that structured logs without trace correlation.
+- Logging: structured (JSON to stdout) with `trace_id`, `span_id` — **from Phase 5**; before that structured logs without trace correlation.
 - Seed: script or one-shot startup job with demo content (articles, categories, media) for k6.
 
-### Next.js (`src/web/`)
+### Next.js (`src/umbr-fe/`)
 
 - App Router, `src/` layout, `@/` aliases.
 - shadcn: components in `components/ui/`, do not duplicate styles.
 - CMS calls via server components / route handlers with caching (`revalidate`) as in APPLICATION_SPEC.
-- Faro SDK — **Phase 6 only**.
+- Faro SDK — **Phase 5 only**.
 - Env: `CMS_BASE_URL`, separate public vs server-only vars.
 
 ### Kubernetes (`deployment/k8s/`)
 
-- Namespaces: `umbraco-demo` (apps), `observability` (stack).
+- Namespaces: `demo-services` (apps), `observability` (stack).
 - Labels: `app.kubernetes.io/name`, `app.kubernetes.io/component`.
 - Probes: liveness → `/health`, readiness → `/ready`.
-- Set resource requests/limits before load tests (tune after Phase 3).
+- Set resource requests/limits before load tests (tune after Phase 6 k6 stress).
 
 ### Observability (`observability/`, `deployment/k8s/observability/`)
 
@@ -136,9 +141,12 @@ See [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md). Summary:
 
 ## Definition of Done (general)
 
-- [ ] Phase criteria in IMPLEMENTATION_PLAN are met
-- [ ] README / docs updated when API contracts or env change
-- [ ] k6 smoke passes on target environment (local or K8s — per phase)
+- [x] Phase 1 criteria in IMPLEMENTATION_PLAN are met (Umbraco; verified prod health/Delivery API)
+- [x] Phase 2 criteria in IMPLEMENTATION_PLAN (Next.js web)
+- [x] Phase 3 criteria in IMPLEMENTATION_PLAN (K8s apps; prod Ingress verified)
+- [ ] Phase criteria for the **active** phase (4: observability stack) are met
+- [x] README / docs updated for Phase 1–3 closure
+- [ ] Full k6 suite passes on k8s (Phase 6; after instrumentation)
 - [ ] No secrets in git
 - [ ] AGENTS.md updated for new cross-cutting rules
 
@@ -160,7 +168,7 @@ Marketplace: [dotnet/skills](https://github.com/dotnet/skills). Installed via `n
 | Skill | Use in this repo |
 |-------|------------------|
 | `dotnet-webapi` | Umbraco CMS API, middleware, endpoints |
-| `configuring-opentelemetry-dotnet` | Phase 6 instrumentation |
+| `configuring-opentelemetry-dotnet` | Phase 5 instrumentation |
 | `optimizing-ef-core-queries` | Umbraco / SQL performance |
 | `analyzing-dotnet-performance` | Load / k6 follow-up |
 | `dotnet-trace-collect`, `dump-collect` | Demo diagnostics |
@@ -172,16 +180,17 @@ Reinstall or update: `npx skills update -p -y` (project scope).
 
 ## Do not
 
-- Deploy the full Grafana stack before applications are ready in K8s (Phase 4 done).
+- Deploy the full Grafana stack before applications are ready in K8s (Phase 3 done).
 - Add “hello world” CMS/frontend — implement APPLICATION_SPEC functionality.
-- Mix Phase 1 and Phase 6 in one PR without explicit user request.
+- Mix Phase 1 and Phase 5 in one PR without explicit user request.
+- Implement only k6 smoke in Phase 6 — the phase requires the **full** scenario set (see [K6_LOAD_TESTING.md](./docs/K6_LOAD_TESTING.md)).
 - Switch to an alternative stack (Datadog, Elastic-only) — demo goal is **Grafana LGTM+**.
 
 ## Questions for the user (if blocked)
 
 Ask only when genuinely uncertain:
 
-- SQL Server vs PostgreSQL for Umbraco
+- PostgreSQL instead of SQL Server (non-default)
 - Managed K8s vs local (kind/k3d/minikube)
 - Beyla in MVP vs Phase 8 only
 - Domain/ingress (real DNS vs localhost)

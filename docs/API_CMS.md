@@ -1,6 +1,13 @@
 # CMS API (Umbraco 17.4.2)
 
-Base URL (local Podman): `http://localhost:8080`
+Content model and feature flags: [APPLICATION_SPEC.md](./APPLICATION_SPEC.md).
+
+| Environment | Base URL |
+|-------------|----------|
+| Local Podman | `http://localhost:8080` |
+| K8s / prod | `https://demo-cms.1node.tech` |
+
+See [src/umbraco/README.md](../src/umbraco/README.md), [.env.example](../.env.example), [deployment/k8s/apps/umbraco/README.md](../deployment/k8s/apps/umbraco/README.md).
 
 ## Health
 
@@ -48,4 +55,4 @@ Demo__FaultEndpoint=true
 GET /umbraco
 ```
 
-Default unattended user (override in production): `admin@demo.local` / see `Umbraco__CMS__Unattended__UnattendedUserPassword`.
+Local/Docker first install may use unattended settings in `appsettings.json`. **Production** (`appsettings.Production.json`): install unattended is off — use users from the restored database; only `UpgradeUnattended` runs schema upgrades.

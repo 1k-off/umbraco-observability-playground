@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="seed-media\**\*" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Umbraco.Cms"/>
     <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice"/>
     <PackageReference Include="AspNetCore.HealthChecks.SqlServer"/>

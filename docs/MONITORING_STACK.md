@@ -93,7 +93,7 @@ flowchart LR
 | RED metrics | OTel | 6 |
 | SSR / route handler duration | OTel | 6 |
 | CMS upstream HTTP | OTel HttpClient child span | 6 |
-| Logs | stdout → Loki | 2 basic, 6 correlated |
+| Logs | stdout → Loki | 2+ when app exists, 6 correlated |
 | Traces | OTLP | 6 |
 | Profiles | Pyroscope Node | 6 |
 | RUM | Faro | 6 |
@@ -119,7 +119,7 @@ Consistent labels for Grafana correlation:
 | Label | Example | Where |
 |-------|---------|-------|
 | `service.name` | `umbraco-cms`, `umbraco-web` | OTel resource |
-| `service.namespace` | `umbraco-demo` | OTel resource |
+| `service.namespace` | `demo-services` | OTel resource |
 | `deployment.environment` | `demo` | OTel resource |
 | `k8s.pod.name` | from downward API | Alloy logs |
 | `http.route` | normalized template | OTel span |
@@ -128,7 +128,7 @@ Consistent labels for Grafana correlation:
 
 ---
 
-## Alloy (configuration — Phase 6 guide)
+## Alloy (configuration — Phase 5 guide)
 
 Files: `observability/alloy/config.alloy` (or ConfigMap `alloy-config`).
 
@@ -143,7 +143,7 @@ Minimum components:
 7. `faro.receiver` (if not using a separate Faro collector)
 8. `pyroscope.write` → Pyroscope
 
-Gateway Service: `alloy-gateway.observability.svc:4317` (document in RUNBOOK).
+Gateway Service: `alloy-gateway.observability.svc:4317` (document in [RUNBOOK_OBSERVABILITY.md](./RUNBOOK_OBSERVABILITY.md)).
 
 ---
 
@@ -212,9 +212,9 @@ Document in `docs/BEYLA_VS_OTEL.md` after Phase 8.
 
 - Namespace: `observability`
 - Preference: official Grafana Helm charts / `grafana/k8s-monitoring-helm`
-- `deploy/k8s/observability/README.md` — chart versions, values overrides, `helm install` order
+- `deployment/k8s/observability/README.md` — chart versions, values overrides, `helm install` order
 
-**Do not** mix observability manifests with `deploy/k8s/apps/` — different lifecycles.
+**Do not** mix observability manifests with `deployment/k8s/apps/` — different lifecycles.
 
 ---
 

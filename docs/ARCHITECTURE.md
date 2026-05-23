@@ -32,7 +32,7 @@ flowchart TB
 
 | Service | Technology | Responsibility |
 |---------|------------|----------------|
-| `umbraco-web` | Next.js | SSR/ISR, BFF route handlers, UI, Faro (Phase 6) |
+| `umbraco-web` | Next.js | SSR/ISR, BFF route handlers, UI, Faro (Phase 5) |
 | `umbraco-cms` | Umbraco headless | Delivery API, search, media, admin (seed) |
 | `umbraco-db` | SQL Server | Umbraco persistence |
 
@@ -69,7 +69,7 @@ Cluster
 ├── namespace: sqlserver
 │   ├── StatefulSet/mssql2025
 │   └── Service LoadBalancer 10.255.0.101:1433 (cluster LB, e.g. MetalLB)
-├── namespace: umbraco-demo
+├── namespace: demo-services
 │   ├── Deployment/umbraco-cms
 │   ├── Deployment/umbraco-web
 │   ├── Ingress (web + cms hosts)
@@ -87,9 +87,9 @@ Cluster
 
 ### Networking
 
-- Web → CMS: cluster DNS `umbraco-cms.umbraco-demo.svc`
+- Web → CMS: cluster DNS `demo-umbraco.demo-services.svc` (see app manifests)
 - CMS → DB: `mssql2025.sqlserver.svc.cluster.local:1433` (in-cluster) or `10.255.0.101:1433` (external LB IP, local Docker Compose)
-- Alloy: scrape pods in `umbraco-demo` via annotations; OTLP ingress from apps
+- Alloy: scrape pods in `demo-services` via annotations; OTLP ingress from apps
 - Grafana: Ingress / port-forward only (not public internet without auth)
 
 ---
@@ -110,7 +110,7 @@ Cluster
 
 | Env | Purpose |
 |-----|---------|
-| `local` | Docker Compose (apps in containers; CMS → remote K8s SQL via port-forward) |
+| `local` | Podman/Docker for apps; CMS → remote K8s SQL at `10.255.0.101:1433` (see `deployment/k8s/sqlserver/`) |
 | `demo` | K8s cluster label `deployment.environment=demo` |
 
 Extra envs (`staging`, `prod`) are not required for the learning demo.

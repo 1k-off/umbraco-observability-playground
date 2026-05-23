@@ -1,5 +1,5 @@
-# Build Umbraco CMS image and publish to GitHub Container Registry (public).
-name: Umbraco CMS container
+# Build Umbraco CMS image, publish to GHCR, deploy Kubernetes manifests (kubeconfig).
+name: Umbraco CMS build and deploy
 
 on:
   push:
@@ -7,28 +7,35 @@ on:
       - main
     paths:
       - "src/umbraco/**"
+      - "deployment/k8s/apps/umbraco/**"
       - ".github/workflows/umbraco-container.yml"
   pull_request:
     paths:
       - "src/umbraco/**"
+      - "deployment/k8s/apps/umbraco/**"
       - ".github/workflows/umbraco-container.yml"
   workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: monitoring-demo-umbraco
+  K8S_CLUSTER: default
+  K8S_NAMESPACE: demo-services
+  DEPLOY_URL: https://demo-cms.1node.tech
 
 permissions:
   contents: read
   packages: write
 
 concurrency:
-  group: monitoring-demo-umbraco-container-${{ github.ref }}
+  group: monitoring-demo-umbraco-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
     steps:
       - id: checkout
         uses: actions/checkout@v6
@@ -45,9 +52,9 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           tags: |
+            type=sha,prefix=,format=long
             type=ref,event=branch
             type=ref,event=pr
-            type=sha
             type=raw,value=latest,enable={{is_default_branch}}
 
       - id: build
@@ -59,18 +66,50 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - id: publish_public
-        name: Set GHCR package visibility to public
-        if: github.event_name != 'pull_request'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PACKAGE: ${{ env.IMAGE_NAME }}
-        run: |
-          set -euo pipefail
-          if [ "${{ github.event.repository.owner.type }}" = "Organization" ]; then
-            gh api --method PATCH -f visibility=public \
-              "/orgs/${{ github.repository_owner }}/packages/container/${PACKAGE}"
-          else
-            gh api --method PATCH -f visibility=public \
-              "/user/packages/container/${PACKAGE}"
-          fi
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: demo-kubernetes
+      url: ${{ env.DEPLOY_URL }}
+    steps:
+      - id: checkout
+        uses: actions/checkout@v6
+
+      - id: setup_kubectl
+        uses: azure/setup-kubectl@v4
+
+      - id: kubeconfig
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+
+      - id: deploy_secret
+        uses: azure/k8s-create-secret@v5
+        with:
+          namespace: ${{ env.K8S_NAMESPACE }}
+          secret-type: generic
+          secret-name: demo-umbraco-secret
+          string-data: |
+            {
+              "ConnectionStrings__umbracoDbDSN": "${{ secrets.UMBRACO_CONNECTION_STRING }}"
+            }
+
+      - id: deploy_manifests
+        uses: Azure/k8s-deploy@v5
+        with:
+          name: ${{ env.K8S_CLUSTER }}
+          action: deploy
+          strategy: basic
+          namespace: ${{ env.K8S_NAMESPACE }}
+          manifests: |
+            deployment/k8s/apps/umbraco/configmap.yaml
+            deployment/k8s/apps/umbraco/pvc.yaml
+            deployment/k8s/apps/umbraco/deployment.yaml
+            deployment/k8s/apps/umbraco/service.yaml
+            deployment/k8s/apps/umbraco/ingressroute.yaml
+          pull-images: false
+          images: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.image_tag }}

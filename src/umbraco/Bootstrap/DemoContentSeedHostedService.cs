@@ -1,7 +1,9 @@
 using Examine;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Models;
+using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Web;
 using Umbraco.Cms.Infrastructure.Examine;
 using Umbraco.Cms.Infrastructure.Scoping;
 using Umbraco.Extensions;
@@ -17,6 +19,9 @@ public class DemoContentSeedHostedService : IHostedService
     private readonly IRuntimeState _runtimeState;
     private readonly IScopeProvider _scopeProvider;
     private readonly ContentTypeBootstrap _contentTypeBootstrap;
+    private readonly DemoLanguageBootstrap _languageBootstrap;
+    private readonly DemoMediaImporter _mediaImporter;
+    private readonly IVariationContextAccessor _variationContextAccessor;
     private readonly IContentService _contentService;
     private readonly IExamineManager _examineManager;
     private readonly ILogger<DemoContentSeedHostedService> _logger;
@@ -25,6 +30,9 @@ public class DemoContentSeedHostedService : IHostedService
         IRuntimeState runtimeState,
         IScopeProvider scopeProvider,
         ContentTypeBootstrap contentTypeBootstrap,
+        DemoLanguageBootstrap languageBootstrap,
+        DemoMediaImporter mediaImporter,
+        IVariationContextAccessor variationContextAccessor,
         IContentService contentService,
         IExamineManager examineManager,
         ILogger<DemoContentSeedHostedService> logger)
@@ -32,6 +40,9 @@ public class DemoContentSeedHostedService : IHostedService
         _runtimeState = runtimeState;
         _scopeProvider = scopeProvider;
         _contentTypeBootstrap = contentTypeBootstrap;
+        _languageBootstrap = languageBootstrap;
+        _mediaImporter = mediaImporter;
+        _variationContextAccessor = variationContextAccessor;
         _contentService = contentService;
         _examineManager = examineManager;
         _logger = logger;
@@ -51,6 +62,10 @@ public class DemoContentSeedHostedService : IHostedService
 
         using IScope scope = _scopeProvider.CreateScope(autoComplete: true);
 
+        await _languageBootstrap.EnsureDefaultLanguageAsync(cancellationToken);
+        DemoLanguageBootstrap.SetThreadCultures();
+        _variationContextAccessor.VariationContext = new VariationContext(DemoLanguageBootstrap.DefaultCulture);
+
         _contentTypeBootstrap.EnsureDocumentTypes();
 
         if (_contentService.GetRootContent().Any(c => c.ContentType.Alias == ContentTypeBootstrap.ArticleAlias))
@@ -59,7 +74,13 @@ public class DemoContentSeedHostedService : IHostedService
             return;
         }
 
-        _logger.LogInformation("Seeding demo content ({Articles} articles)...", ArticleCount);
+        _logger.LogInformation("Seeding demo media and content ({Articles} articles)...", ArticleCount);
+
+        DemoMediaSets media = _mediaImporter.ImportSeedFiles();
+        if (media.Featured.Count == 0 || media.Avatars.Count == 0)
+        {
+            throw new InvalidOperationException("Seed media import produced no featured images or avatars.");
+        }
 
         var categories = new List<IContent>();
         for (var i = 1; i <= CategoryCount; i++)
@@ -78,6 +99,7 @@ public class DemoContentSeedHostedService : IHostedService
         var authors = new List<IContent>();
         for (var i = 1; i <= AuthorCount; i++)
         {
+            IMedia avatar = media.Avatars[(i - 1) % media.Avatars.Count];
             IContent author = _contentService.Create(
                 $"Author {i}",
                 Constants.System.Root,
@@ -85,6 +107,7 @@ public class DemoContentSeedHostedService : IHostedService
             author.SetValue("name", $"Author {i}");
             author.SetValue("slug", $"author-{i}");
             author.SetValue("bio", $"Bio for author {i}");
+            author.SetValue("avatar", avatar.GetUdi().ToString());
             SaveAndPublish(author);
             authors.Add(author);
         }
@@ -104,6 +127,7 @@ public class DemoContentSeedHostedService : IHostedService
         {
             IContent category = categories[i % categories.Count];
             IContent author = authors[i % authors.Count];
+            IMedia featured = media.Featured[(i - 1) % media.Featured.Count];
             string slug = $"article-{i:D3}";
 
             IContent article = _contentService.Create(
@@ -115,6 +139,7 @@ public class DemoContentSeedHostedService : IHostedService
             article.SetValue("excerpt", $"Short excerpt for article {i}.");
             article.SetValue("body", $"<p>Body content for article {i}. Monitoring demo paragraph.</p>");
             article.SetValue("publishDate", DateTime.UtcNow.AddDays(-random.Next(0, 90)));
+            article.SetValue("featuredImage", featured.GetUdi().ToString());
             article.SetValue("category", category.GetUdi().ToString());
             article.SetValue("author", author.GetUdi().ToString());
             SaveAndPublish(article);

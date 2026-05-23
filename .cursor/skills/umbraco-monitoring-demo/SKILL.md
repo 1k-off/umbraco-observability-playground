@@ -12,7 +12,7 @@ description: >-
 ## Before you act
 
 1. Read [AGENTS.md](../../../AGENTS.md)
-2. Confirm active **phase** with the user if unclear
+2. Default phase: **4** (observability stack). Phases **0–3** are complete unless the user asks for app/K8s changes.
 3. Open the matching section in [docs/IMPLEMENTATION_PLAN.md](../../../docs/IMPLEMENTATION_PLAN.md)
 
 ## Phase guardrails
@@ -21,19 +21,19 @@ description: >-
 |-------|-------------------|--------------|
 | 0 | docs, AGENTS, rules | application code |
 | 1 | `src/umbraco/` | Next.js, observability |
-| 2 | `src/web/` | observability |
-| 3 | `load/k6/` | K8s obs stack |
-| 4 | `deployment/k8s/apps/` | observability namespace |
-| 5 | `deployment/k8s/observability/` | app OTel/Faro |
-| 6 | OTel, Alloy, Faro, Pyroscope SDKs | Beyla (unless user asks) |
+| 2 | `src/umbr-fe/` | observability |
+| 3 | `deployment/k8s/apps/` | observability namespace, k6 |
+| 4 | `deployment/k8s/observability/` | app OTel/Faro |
+| 5 | OTel, Alloy, Faro, Pyroscope SDKs | Beyla (unless user asks), k6 |
+| 6 | `load/k6/` — **full** suite (smoke, load, stress, spike, cms-direct) | smoke-only as phase deliverable |
 | 7 | dashboards, alerts, demo docs | — |
 | 8 | Beyla | — |
 
 ## Key paths (when they exist)
 
 - CMS: `src/umbraco/`
-- Web: `src/web/`
-- k6: `load/k6/`
+- Web: `src/umbr-fe/`
+- k6: `load/k6/` (Phase 6)
 - SQL K8s: `deployment/k8s/sqlserver/`
 - Apps K8s: `deployment/k8s/apps/`
 - Obs K8s: `deployment/k8s/observability/`
@@ -42,9 +42,11 @@ description: >-
 ## Specs
 
 - App features: [docs/APPLICATION_SPEC.md](../../../docs/APPLICATION_SPEC.md)
+- CMS API: [docs/API_CMS.md](../../../docs/API_CMS.md)
 - Architecture: [docs/ARCHITECTURE.md](../../../docs/ARCHITECTURE.md)
 - Monitoring: [docs/MONITORING_STACK.md](../../../docs/MONITORING_STACK.md)
 - k6: [docs/K6_LOAD_TESTING.md](../../../docs/K6_LOAD_TESTING.md)
+- Runbooks: [docs/RUNBOOK_LOCAL_K8S.md](../../../docs/RUNBOOK_LOCAL_K8S.md), [docs/RUNBOOK_OBSERVABILITY.md](../../../docs/RUNBOOK_OBSERVABILITY.md)
 
 ## Observability naming
 
@@ -65,4 +67,4 @@ Update [AGENTS.md](../../../AGENTS.md) per `agents-md-sync` skill.
 
 ## Done means
 
-Phase DoD checkboxes in IMPLEMENTATION_PLAN are satisfied; k6 smoke passes when the phase requires it.
+Phase DoD checkboxes in IMPLEMENTATION_PLAN are satisfied. Phase 6 requires the **full** k6 programme, not smoke alone.

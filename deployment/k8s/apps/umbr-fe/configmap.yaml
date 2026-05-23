@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-umbr-fe-config
+  labels:
+    app.kubernetes.io/name: demo-umbr-fe
+    app.kubernetes.io/component: web
+    app.kubernetes.io/part-of: demo-monitoring
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  HOSTNAME: "0.0.0.0"
+  # BFF + SSR fetch (public CMS URL — media URLs in HTML must be browser-reachable)
+  CMS_BASE_URL: "https://demo-cms.1node.tech"
+  NEXT_PUBLIC_SITE_URL: "https://demo-umbr-fe.1node.tech"

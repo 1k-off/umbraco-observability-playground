@@ -51,13 +51,13 @@ Content site: articles, categories, authors, search, static About page.
 
 ### Non-functional
 
-- Structured logs: `level`, `message`, `requestId` (Phase 1); + `trace_id` (Phase 6)
-- CORS: allow web origin (config)
-- Response compression: enabled
+- Structured logs: `level`, `message`, `requestId` (Phase 1); + `trace_id` (Phase 5)
+- CORS on CMS: **not required** when Next.js uses server-side BFF only (no browser → CMS cross-origin)
+- Response compression: enabled (Brotli/Gzip middleware)
 
 ---
 
-## Next.js Web (`src/web/`)
+## Next.js Web (`src/umbr-fe/`)
 
 ### Pages (App Router)
 
@@ -117,7 +117,7 @@ Content site: articles, categories, authors, search, static About page.
 Even in Phases 1–2, use **stable route names** for future metrics:
 
 - `http.route`: `/articles`, `/api/search`, `/umbraco/api/search`
-- Do not put random query values in route template metric labels (normalize in OTel Phase 6)
+- Do not put random query values in route template metric labels (normalize in OTel Phase 5)
 
 ---
 
@@ -131,9 +131,25 @@ Even in Phases 1–2, use **stable route names** for future metrics:
 
 ---
 
-## Acceptance (applications before Phase 4)
+## Acceptance (applications — Phase 3 K8s complete)
 
-- [ ] Seed runs with a single command
-- [ ] All web pages show real content
-- [ ] Search returns relevant results for known seed terms
-- [ ] Slow/fault endpoints off by default and enabled via config
+### Umbraco (Phase 1) — complete
+
+- [x] Seed on first start (`DemoContentSeedHostedService`; idempotent if content exists)
+- [x] Search returns results for seed terms (`GET /umbraco/api/search`)
+- [x] Slow/fault endpoints off by default (`Demo__SlowEndpoint` / `Demo__FaultEndpoint` false in Production/K8s)
+- [x] Delivery API + health/ready + Containerfile + `docs/API_CMS.md`
+
+### Web (Phase 2) — complete
+
+- [x] All web pages show real content (`src/umbr-fe/`, BFF route handlers, `src/umbr-fe/README.md`)
+- [x] `Dockerfile` + `npm run build`; lockfile includes `@emnapi/*` for Linux `npm ci`
+- [x] CI/CD: `.github/workflows/umbr-fe-container.yml` → GHCR → `deployment/k8s/apps/umbr-fe/`
+- [x] Prod: `https://demo-umbr-fe.1node.tech` (SSR, search, CMS images)
+- [x] Loading skeletons (`loading.tsx`), search `error.tsx` + toast, explicit `sharp` for Docker/Alpine images
+
+### K8s apps (Phase 3) — complete
+
+- [x] Namespace `demo-services` — `deployment/k8s/apps/namespace.yaml`; CI workflows deploy with `-n demo-services`
+- [x] Umbraco + web manifests, IngressRoute, HPA (web); runbook [RUNBOOK_LOCAL_K8S.md](./RUNBOOK_LOCAL_K8S.md)
+- [x] Prod Ingress: [demo-cms.1node.tech](https://demo-cms.1node.tech), [demo-umbr-fe.1node.tech](https://demo-umbr-fe.1node.tech)

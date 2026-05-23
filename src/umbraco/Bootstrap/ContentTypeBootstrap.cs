@@ -29,44 +29,77 @@ public class ContentTypeBootstrap
 
     public void EnsureDocumentTypes()
     {
-        if (_contentTypeService.Get(ArticleAlias) is not null)
+        EnsureCategoryType();
+        EnsureAuthorType();
+        EnsureArticleType();
+        EnsureSiteSettingsType();
+    }
+
+    private void EnsureCategoryType()
+    {
+        IContentType type = GetOrCreate(CategoryAlias, "Category", allowsAtRoot: true);
+        var changed = false;
+        changed |= EnsureText(type, "name", "Name");
+        changed |= EnsureText(type, "slug", "Slug");
+        changed |= EnsureTextarea(type, "description", "Description");
+        SaveIfDirty(type, changed);
+    }
+
+    private void EnsureAuthorType()
+    {
+        IContentType type = GetOrCreate(AuthorAlias, "Author", allowsAtRoot: true);
+        var changed = false;
+        changed |= EnsureText(type, "name", "Name");
+        changed |= EnsureText(type, "slug", "Slug");
+        changed |= EnsureTextarea(type, "bio", "Bio");
+        changed |= EnsureMediaPicker(type, "avatar", "Avatar");
+        SaveIfDirty(type, changed);
+    }
+
+    private void EnsureArticleType()
+    {
+        IContentType type = GetOrCreate(ArticleAlias, "Article", allowsAtRoot: true);
+        var changed = false;
+        changed |= EnsureText(type, "title", "Title");
+        changed |= EnsureText(type, "slug", "Slug");
+        changed |= EnsureTextarea(type, "excerpt", "Excerpt");
+        changed |= EnsureRichtext(type, "body", "Body");
+        changed |= EnsureDate(type, "publishDate", "Publish date");
+        changed |= EnsureMediaPicker(type, "featuredImage", "Featured image");
+        changed |= EnsureContentPicker(type, "category", "Category");
+        changed |= EnsureContentPicker(type, "author", "Author");
+        SaveIfDirty(type, changed);
+    }
+
+    private void EnsureSiteSettingsType()
+    {
+        IContentType type = GetOrCreate(SiteSettingsAlias, "Site settings", allowsAtRoot: true);
+        var changed = false;
+        changed |= EnsureText(type, "siteName", "Site name");
+        changed |= EnsureText(type, "tagline", "Tagline");
+        changed |= EnsureRichtext(type, "aboutBody", "About body");
+        changed |= EnsureText(type, "contactEmail", "Contact email");
+        SaveIfDirty(type, changed);
+    }
+
+    private IContentType GetOrCreate(string alias, string name, bool allowsAtRoot)
+    {
+        IContentType? existing = _contentTypeService.Get(alias);
+        if (existing is not null)
         {
-            return;
+            return existing;
         }
 
-        IContentType category = CreateType(CategoryAlias, "Category", allowsAtRoot: true);
-        AddText(category, "name", "Name");
-        AddText(category, "slug", "Slug");
-        AddTextarea(category, "description", "Description");
-        Save(category);
-
-        IContentType author = CreateType(AuthorAlias, "Author", allowsAtRoot: true);
-        AddText(author, "name", "Name");
-        AddText(author, "slug", "Slug");
-        AddTextarea(author, "bio", "Bio");
-        Save(author);
-
-        IContentType article = CreateType(ArticleAlias, "Article", allowsAtRoot: true);
-        AddText(article, "title", "Title");
-        AddText(article, "slug", "Slug");
-        AddTextarea(article, "excerpt", "Excerpt");
-        AddRichtext(article, "body", "Body");
-        AddDate(article, "publishDate", "Publish date");
-        AddContentPicker(article, "category", "Category");
-        AddContentPicker(article, "author", "Author");
-        Save(article);
-
-        IContentType siteSettings = CreateType(SiteSettingsAlias, "Site settings", allowsAtRoot: true);
-        AddText(siteSettings, "siteName", "Site name");
-        AddText(siteSettings, "tagline", "Tagline");
-        AddRichtext(siteSettings, "aboutBody", "About body");
-        AddText(siteSettings, "contactEmail", "Contact email");
-        Save(siteSettings);
+        IContentType created = CreateType(alias, name, allowsAtRoot);
+#pragma warning disable CS0618
+        _contentTypeService.Save(created);
+#pragma warning restore CS0618
+        return created;
     }
 
     private IContentType CreateType(string alias, string name, bool allowsAtRoot)
     {
-        var type = new ContentType(_shortStringHelper, -1)
+        return new ContentType(_shortStringHelper, -1)
         {
             Alias = alias,
             Name = name,
@@ -75,26 +108,33 @@ public class ContentTypeBootstrap
             IsElement = false,
             Variations = ContentVariation.Nothing,
         };
-        return type;
     }
 
-    private void AddText(IContentType type, string alias, string name)
-        => AddProperty(type, alias, name, Constants.PropertyEditors.Aliases.TextBox);
+    private bool EnsureText(IContentType type, string alias, string name)
+        => EnsureProperty(type, alias, name, Constants.PropertyEditors.Aliases.TextBox);
 
-    private void AddTextarea(IContentType type, string alias, string name)
-        => AddProperty(type, alias, name, Constants.PropertyEditors.Aliases.TextArea);
+    private bool EnsureTextarea(IContentType type, string alias, string name)
+        => EnsureProperty(type, alias, name, Constants.PropertyEditors.Aliases.TextArea);
 
-    private void AddRichtext(IContentType type, string alias, string name)
-        => AddProperty(type, alias, name, Constants.PropertyEditors.Aliases.RichText);
+    private bool EnsureRichtext(IContentType type, string alias, string name)
+        => EnsureProperty(type, alias, name, Constants.PropertyEditors.Aliases.RichText);
 
-    private void AddDate(IContentType type, string alias, string name)
-        => AddProperty(type, alias, name, Constants.PropertyEditors.Aliases.DateTime);
+    private bool EnsureDate(IContentType type, string alias, string name)
+        => EnsureProperty(type, alias, name, Constants.PropertyEditors.Aliases.DateTime);
 
-    private void AddContentPicker(IContentType type, string alias, string name)
-        => AddProperty(type, alias, name, Constants.PropertyEditors.Aliases.ContentPicker);
+    private bool EnsureContentPicker(IContentType type, string alias, string name)
+        => EnsureProperty(type, alias, name, Constants.PropertyEditors.Aliases.ContentPicker);
 
-    private void AddProperty(IContentType type, string alias, string name, string editorAlias)
+    private bool EnsureMediaPicker(IContentType type, string alias, string name)
+        => EnsureProperty(type, alias, name, Constants.PropertyEditors.Aliases.MediaPicker3);
+
+    private bool EnsureProperty(IContentType type, string alias, string name, string editorAlias)
     {
+        if (type.PropertyTypes.Any(p => p.Alias == alias))
+        {
+            return false;
+        }
+
         IDataType dataType = _dataTypeService.GetByEditorAlias(editorAlias).First()
             ?? throw new InvalidOperationException($"Data type for editor {editorAlias} not found.");
 
@@ -105,10 +145,16 @@ public class ContentTypeBootstrap
             Variations = ContentVariation.Nothing,
         };
         type.AddPropertyType(propertyType);
+        return true;
     }
 
-    private void Save(IContentType type)
+    private void SaveIfDirty(IContentType type, bool changed)
     {
+        if (!changed)
+        {
+            return;
+        }
+
 #pragma warning disable CS0618
         _contentTypeService.Save(type);
 #pragma warning restore CS0618

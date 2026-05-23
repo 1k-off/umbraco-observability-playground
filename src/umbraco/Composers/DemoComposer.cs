@@ -11,6 +11,8 @@ public class DemoComposer : IComposer
     {
         builder.Services.Configure<DemoOptions>(builder.Config.GetSection(DemoOptions.SectionName));
         builder.Services.AddSingleton<ContentTypeBootstrap>();
+        builder.Services.AddSingleton<DemoLanguageBootstrap>();
+        builder.Services.AddSingleton<DemoMediaImporter>();
         builder.Services.AddHostedService<DemoContentSeedHostedService>();
     }
 }

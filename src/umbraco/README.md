@@ -1,8 +1,13 @@
 # Umbraco CMS (17.4.2)
 
-Headless Umbraco for the monitoring demo: **Delivery API**, demo content seed, search and health endpoints.
+**Phase 1 complete.** Headless Umbraco for the monitoring demo: **Delivery API**, demo content seed, search and health endpoints.
 
-Built and run with **Podman** only (no local .NET SDK required).
+| Environment | URL |
+|-------------|-----|
+| Production (K8s) | `https://demo-cms.1node.tech` |
+| Local Podman | `http://localhost:8080` |
+
+Built and run with **Podman** only (no local .NET SDK required). K8s: [deployment/k8s/apps/umbraco/README.md](../../deployment/k8s/apps/umbraco/README.md).
 
 ## Stack
 
@@ -11,13 +16,6 @@ Built and run with **Podman** only (no local .NET SDK required).
 | Umbraco | 17.4.2 ([templates](https://docs.umbraco.com/umbraco-cms/get-started/installation)) |
 | .NET | 10.0 |
 | SQL Server | Remote `10.255.0.101:1433` (see `deployment/k8s/sqlserver/`) |
-
-## Scaffold (already done)
-
-```bash
-podman run --rm -v "./src:/src:Z" -w /src mcr.microsoft.com/dotnet/sdk:10.0 \
-  bash -c "dotnet new install Umbraco.Templates && dotnet new umbraco -n UmbracoMonitoring -o umbraco"
-```
 
 ## Build image
 
@@ -70,7 +68,9 @@ Or:
 .\scripts\podman-umbraco-run.ps1 -SqlPassword "YOUR_PASSWORD"
 ```
 
-First start runs **unattended install** and **content seed** (100 articles). Allow 2–5 minutes.
+First start runs **unattended install** and **content seed** (100 articles, 25 media images from `seed-media/`). Allow 2–5 minutes.
+
+Copy `appsettings.Development.json.example` → `appsettings.Development.json` (gitignored) for local SDK/`dotnet run`.
 
 ## Endpoints
 
@@ -80,6 +80,7 @@ First start runs **unattended install** and **content seed** (100 articles). All
 | http://localhost:8080/ready | Readiness (SQL) |
 | http://localhost:8080/umbraco/delivery/api/v2/ | Delivery API |
 | http://localhost:8080/umbraco/api/search?q=article | Examine search |
+| Response headers | `X-Request-Id` on all requests; same value in structured logs as `requestId` |
 | http://localhost:8080/umbraco/api/demo/slow | Feature flag `Demo:SlowEndpoint` |
 | http://localhost:8080/umbraco | Backoffice (after install) |
 

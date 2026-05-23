@@ -1,0 +1,107 @@
+# Build Next.js frontend image, publish to GHCR, deploy Kubernetes manifests (kubeconfig).
+name: Umbraco frontend build and deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/umbr-fe/**"
+      - "deployment/k8s/apps/umbr-fe/**"
+      - ".github/workflows/umbr-fe-container.yml"
+  pull_request:
+    paths:
+      - "src/umbr-fe/**"
+      - "deployment/k8s/apps/umbr-fe/**"
+      - ".github/workflows/umbr-fe-container.yml"
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: monitoring-demo-umbr-fe
+  K8S_CLUSTER: default
+  K8S_NAMESPACE: demo-services
+  CMS_BASE_URL: https://demo-cms.1node.tech
+  DEPLOY_URL: https://demo-umbr-fe.1node.tech
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: monitoring-demo-umbr-fe-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+    steps:
+      - id: checkout
+        uses: actions/checkout@v6
+
+      - id: login
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=,format=long
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: src/umbr-fe
+          file: src/umbr-fe/Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            CMS_BASE_URL=${{ env.CMS_BASE_URL }}
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: demo-kubernetes
+      url: ${{ env.DEPLOY_URL }}
+    steps:
+      - id: checkout
+        uses: actions/checkout@v6
+
+      - id: setup_kubectl
+        uses: azure/setup-kubectl@v4
+
+      - id: kubeconfig
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+
+      - id: deploy_manifests
+        uses: Azure/k8s-deploy@v5
+        with:
+          name: ${{ env.K8S_CLUSTER }}
+          action: deploy
+          strategy: basic
+          namespace: ${{ env.K8S_NAMESPACE }}
+          manifests: |
+            deployment/k8s/apps/umbr-fe/configmap.yaml
+            deployment/k8s/apps/umbr-fe/deployment.yaml
+            deployment/k8s/apps/umbr-fe/service.yaml
+            deployment/k8s/apps/umbr-fe/ingressroute.yaml
+            deployment/k8s/apps/umbr-fe/hpa.yaml
+          pull-images: false
+          images: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.image_tag }}

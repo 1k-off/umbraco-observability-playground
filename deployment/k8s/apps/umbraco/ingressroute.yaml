@@ -1,0 +1,31 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: demo-umbraco-middleware
+  labels:
+    app.kubernetes.io/name: demo-umbraco
+    app.kubernetes.io/component: cms
+    app.kubernetes.io/part-of: demo-monitoring
+spec:
+  buffering:
+    maxRequestBodyBytes: 104857600
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: demo-umbraco
+  labels:
+    app.kubernetes.io/name: demo-umbraco
+    app.kubernetes.io/component: cms
+    app.kubernetes.io/part-of: demo-monitoring
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`demo-cms.1node.tech`)
+      kind: Rule
+      middlewares:
+        - name: demo-umbraco-middleware
+      services:
+        - name: demo-umbraco
+          port: 8080
