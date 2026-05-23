@@ -1,3 +1,5 @@
+import { context, propagation } from "@opentelemetry/api";
+
 import { getServerEnv } from "@/lib/env";
 import { withCmsFetchSpan } from "@/lib/observability/tracer";
 import {
@@ -36,8 +38,12 @@ async function cmsFetch<T>(path: string, options: FetchOptions = {}): Promise<T>
     const base = getServerEnv().CMS_BASE_URL.replace(/\/$/, "");
     const url = `${base}${path.startsWith("/") ? path : `/${path}`}`;
 
+    const headers = new Headers({ Accept: "application/json" });
+    // Continue the active SSR span into Umbraco (W3C traceparent → ASP.NET → SQL).
+    propagation.inject(context.active(), headers);
+
     const init: RequestInit & { next?: { revalidate?: number | false; tags?: string[] } } = {
-      headers: { Accept: "application/json" },
+      headers,
     };
 
     if (options.revalidate === false) {

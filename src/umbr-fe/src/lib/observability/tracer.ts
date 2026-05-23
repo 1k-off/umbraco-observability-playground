@@ -1,4 +1,4 @@
-import { SpanStatusCode, trace } from "@opentelemetry/api";
+import { SpanKind, SpanStatusCode, trace } from "@opentelemetry/api";
 
 const tracer = trace.getTracer("umbraco-web");
 
@@ -7,7 +7,10 @@ export async function withCmsFetchSpan<T>(
   attributes: Record<string, string | number | boolean>,
   fn: () => Promise<T>,
 ): Promise<T> {
-  return tracer.startActiveSpan(`cms.${operation}`, async (span) => {
+  return tracer.startActiveSpan(
+    `cms.${operation}`,
+    { kind: SpanKind.CLIENT },
+    async (span) => {
     try {
       for (const [key, value] of Object.entries(attributes)) {
         span.setAttribute(key, value);
@@ -24,5 +27,6 @@ export async function withCmsFetchSpan<T>(
     } finally {
       span.end();
     }
-  });
+    },
+  );
 }

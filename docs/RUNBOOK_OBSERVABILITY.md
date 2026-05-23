@@ -97,12 +97,13 @@ kubectl apply -f deployment/k8s/observability/alloy/gateway-service.yaml
 
 2. **Apps** — rebuild/push CMS and web images (OTel + Pyroscope + Faro), then apply ConfigMaps and roll Deployments in `demo-services`.
 
-3. **Verify** (Grafana Explore):
-   - Tempo: `{ resource.service.name = "umbraco-web" }` → child span to `umbraco-cms`
-   - Loki: CMS JSON with `trace_id` — `{service_name="demo-umbraco"} | json` (label from pod `app.kubernetes.io/name`, not OTel `service.name`)
-   - Mimir: `traces_spanmetrics_latency_bucket` or OTel HTTP metrics for both services
-   - Pyroscope: `umbraco-cms` / `umbraco-web` profiles after a few page loads
-   - Faro: sessions after opening the public web UI (collector via `https://<web>/api/faro` → alloy-gateway:12347)
+3. **Verify** (Grafana Explore) — see [Explore traps](#grafana-explore-phase-5-traps) for filters that avoid probe/SQL noise:
+   - Tempo web: `{ resource.service.name = "umbraco-web" && name = "cms.fetch" }`
+   - Tempo CMS: `{ resource.service.name = "umbraco-cms" && span.http.route != "" }`
+   - Loki CMS: `{service_name="demo-umbraco"} |= "trace_id"` (or `TraceId`)
+   - Mimir: RED for **both** jobs — different metric names for .NET vs Node (below)
+   - Pyroscope: `umbraco-cms` / `umbraco-web` after page loads
+   - Faro: Loki `{service_name="unknown_service"} |= "sdk_name=faro-web"`; browser POST `/api/faro/collect` → 202
 
 **Endpoints (in-cluster):**
 
@@ -147,26 +148,140 @@ kubectl -n demo-services logs deploy/demo-umbraco --tail=5
 
 In Grafana → Loki → Label browser: start from `job`, then `service_name` / `pod` / `namespace`.
 
+## Labels cheat sheet (do not mix)
+
+| Context | Label / field | Web | CMS | Faro (browser) |
+|---------|----------------|-----|-----|----------------|
+| Tempo / OTel resource | `resource.service.name` | `umbraco-web` | `umbraco-cms` | traces also `umbraco-web` |
+| Loki pod logs (K8s relabel) | `service_name` | `demo-umbr-fe` | `demo-umbraco` | — |
+| Loki Faro events (`faro.receiver`) | `service_name` | — | — | **`unknown_service`** (Alloy default) |
+| Mimir OTLP → Prometheus | `job` | `demo-services/umbraco-web` | `demo-services/umbraco-cms` | — |
+
+Pod log queries must **not** use `umbraco-web` as a Loki label. Tempo queries must **not** use `demo-umbr-fe`.
+
 ## Mimir: find real metric names
 
-OTel → Prometheus names rarely match `http_server_request_duration_seconds_count`. Discover first:
+**.NET and Node export different HTTP histogram names** after OTLP → Alloy → Mimir. Filtering only `http_server_request_duration_seconds_*` hides the web.
+
+| Service | `job` | RED counter (example) |
+|---------|-------|------------------------|
+| CMS (.NET) | `demo-services/umbraco-cms` | `http_server_request_duration_seconds_count` |
+| Web (Node) | `demo-services/umbraco-web` | `http_server_duration_milliseconds_count` |
 
 ```promql
-topk(20, count by (__name__) ({__name__=~".*http.*"}))
-count by (__name__, service_name) ({__name__=~".*http.*"})
+# CMS
+sum(rate(http_server_request_duration_seconds_count{job="demo-services/umbraco-cms"}[5m]))
+
+# Web
+sum(rate(http_server_duration_milliseconds_count{job="demo-services/umbraco-web"}[5m]))
+
+# Discovery
+topk(10, count by (__name__, job) ({__name__=~"http_server.*"}))
 ```
 
-Use the `__name__` and `service_name` values from that table, e.g.:
+OTel → Prometheus may omit `service_name` on series; prefer **`job`** from the table above.
 
-```promql
-rate(<exact_name_from_table>{service_name="<exact_value>"}[5m])
-```
-
-Span metrics (if Tempo metrics generator is on):
+Span metrics (optional; requires Tempo metrics generator):
 
 ```promql
 sum(rate(traces_spanmetrics_calls_total{service=~"umbraco.*"}[5m])) by (service)
 ```
+
+## Grafana Explore: Phase 5 traps
+
+Symptoms below are usually **wrong filter or UI mode**, not missing instrumentation.
+
+### Tempo — `umbraco-web` looks like “only `/api/health`”
+
+Kubernetes **liveness/readiness** hit `/api/health` every ~10–15s and flood the trace list.
+
+```traceql
+{ resource.service.name = "umbraco-web" && span.http.route != "/api/health" }
+```
+
+SSR + CMS:
+
+```traceql
+{ resource.service.name = "umbraco-web" && name = "cms.fetch" }
+{ resource.service.name = "umbraco-web" && span.http.route = "/articles/[slug]" }
+```
+
+Open the **full trace** (waterfall), not a single span row. Search type **Traces** shows the tree; span-only tables favor leaf spans.
+
+### Tempo — `umbraco-cms` looks like “only SQL”
+
+Umbraco background jobs emit constant **SqlClient** spans (`SELECT [umbracoDistributedJob]`, etc.). The span table shows **child** names first.
+
+```traceql
+{ resource.service.name = "umbraco-cms" && span.http.route != "" }
+{ resource.service.name = "umbraco-cms" && name =~ ".*delivery.*" }
+```
+
+After browsing the site you should see routes like `umbraco/delivery/api/.../content/item/{*path}` and `umbraco/api/search`. SQL spans appear **inside** those traces.
+
+### Mimir — “no frontend”
+
+Web metrics use **`http_server_duration_milliseconds_*`**, not `http_server_request_duration_seconds_*`. See [Mimir](#mimir-find-real-metric-names).
+
+### Loki — Faro (no Faro datasource)
+
+Grafana is provisioned with Mimir, Loki, Tempo, Pyroscope only — **no Grafana Faro datasource**. RUM is viewed via **Loki** (events) and **Tempo** (browser traces).
+
+| Check | Where |
+|-------|--------|
+| Collector works | Browser DevTools → `POST https://<web>/api/faro/collect` → **202** |
+| Sessions, vitals, JS fetch | **Loki** (streams from `faro.receiver`) |
+| Browser / navigation traces | **Tempo** (`resource.service.name = "umbraco-web"`) |
+
+Faro lines land under **`service_name="unknown_service"`** (not `demo-umbr-fe`). Lines contain `sdk_name=faro-web`, `app_name=umbraco-web`, `session_id=...`.
+
+```logql
+{service_name="unknown_service"} |= "sdk_name=faro-web"
+{service_name="unknown_service"} |= "event_name=session"
+{service_name="unknown_service"} |= "faro.performance"
+{service_name="unknown_service"} |= "faro.tracing"
+```
+
+Copy `traceID=...` from a Faro log line → **Tempo** → search by Trace ID.
+
+BFF proxy spans (server-side POST to collector):
+
+```traceql
+{ resource.service.name = "umbraco-web" && span.http.target =~ ".*/api/faro.*" }
+```
+
+### Distributed tracing (browser → web → CMS → SQL)
+
+After redeploying the web image with W3C propagation:
+
+| Hop | Mechanism |
+|-----|-----------|
+| Browser → Next.js | Faro `TracingInstrumentation` adds `traceparent` on same-origin fetch/RSC |
+| Next.js SSR | `@opentelemetry/instrumentation-http` continues the trace |
+| Next.js → CMS | `propagation.inject` on `cmsFetch` + Undici instrumentation |
+| CMS → SQL | ASP.NET Core + SqlClient instrumentation (child spans) |
+
+**Verify in Tempo:** open one trace (exclude `/api/health`). You should see one **trace ID** with spans from `umbraco-web` and `umbraco-cms` (plus SQL children under CMS).
+
+```traceql
+{ resource.service.name = "umbraco-web" && name = "cms.fetch" }
+```
+
+Open the trace waterfall — expand CMS `GET` / Delivery API spans and SQL (`SELECT`, `UPDATE`, …) under the same trace ID.
+
+**Limits (demo):**
+
+- First full page load may still show a **separate** Faro browser trace and an SSR trace until navigation uses RSC fetch with `traceparent`.
+- Background Umbraco SQL jobs are unrelated traces (no HTTP parent).
+
+### Phase 5 five-minute walkthrough
+
+1. Open `https://demo-umbr-fe.1node.tech` and two article URLs.
+2. **Tempo:** `{ resource.service.name = "umbraco-web" && name = "cms.fetch" }` → open trace.
+3. **Mimir:** `http_server_duration_milliseconds_count{job="demo-services/umbraco-web"}` and CMS counter above.
+4. **Loki CMS:** `{service_name="demo-umbraco"} |= "trace_id"`.
+5. **Loki Faro:** `{service_name="unknown_service"} |= "sdk_name=faro-web"`.
+6. **Pyroscope:** app names `umbraco-cms`, `umbraco-web`.
 
 ## Troubleshooting
 
@@ -184,7 +299,10 @@ sum(rate(traces_spanmetrics_calls_total{service=~"umbraco.*"}[5m])) by (service)
 | Alloy: `otelcol.exporter.debug` experimental | Phase 5 uses wired exporters in [values-alloy-gateway.yaml](../deployment/k8s/observability/helm/values-alloy-gateway.yaml); do not use debug exporter with `stabilityLevel: generally-available` |
 | Alloy gateway CrashLoop after Phase 5 | `kubectl logs -n observability deploy/alloy-gateway` — fix River syntax; validate against [config.alloy](../../observability/alloy/config.alloy) |
 | No traces in Tempo | Apps `OTEL_EXPORTER_OTLP_ENDPOINT` → `alloy-gateway:4317`; gateway pods Running; generate traffic to web + CMS |
-| Faro empty | Browser network tab POST to `/api/faro`; `FARO_COLLECTOR_URL` on web pod; alloy-gateway port 12347 |
+| Faro empty | Browser POST `/api/faro/collect` → 202; Loki `{service_name="unknown_service"} \|= "faro-web"` (not `demo-umbr-fe`); no Faro datasource in Grafana |
+| Tempo: only `/api/health` for web | Exclude probes: `span.http.route != "/api/health"`; use `name = "cms.fetch"` |
+| Tempo: only SQL for cms | Filter HTTP: `span.http.route != ""`; open full trace |
+| Mimir: web missing | Use `http_server_duration_milliseconds_*` and `job="demo-services/umbraco-web"` |
 | Mimir/Loki CrashLoop | MinIO buckets exist (`job/minio-create-buckets`); secret keys match values files |
 | Datasource error in Grafana | `kubectl -n observability get svc` — gateway service names match [values-grafana.yaml](../deployment/k8s/observability/helm/values-grafana.yaml) |
 | Alloy gateway no OTLP | `kubectl -n observability get svc alloy-gateway` ports 4317/4318; apply [gateway-service.yaml](../deployment/k8s/observability/alloy/gateway-service.yaml) |

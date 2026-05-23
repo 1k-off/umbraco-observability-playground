@@ -52,6 +52,7 @@ Content site: articles, categories, authors, search, static About page.
 ### Non-functional
 
 - Structured logs: `level`, `message`, `requestId` (Phase 1); + `trace_id` (Phase 5)
+- Distributed tracing (Phase 5): W3C `traceparent` — Faro (browser RSC) → Next.js SSR → `cmsFetch` → Umbraco Delivery API → SQL; verify one trace ID in Tempo (see [RUNBOOK_OBSERVABILITY.md](./RUNBOOK_OBSERVABILITY.md#distributed-tracing-browser--web--cms--sql))
 - CORS on CMS: **not required** when Next.js uses server-side BFF only (no browser → CMS cross-origin)
 - Response compression: enabled (Brotli/Gzip middleware)
 

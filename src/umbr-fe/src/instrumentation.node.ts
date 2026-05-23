@@ -39,6 +39,8 @@ const sdk = new NodeSDK({
   instrumentations: [
     getNodeAutoInstrumentations({
       "@opentelemetry/instrumentation-fs": { enabled: false },
+      // Propagate traceparent on Node fetch() to Umbraco (in addition to manual inject in cms client).
+      "@opentelemetry/instrumentation-undici": { enabled: true },
     }),
   ],
 });

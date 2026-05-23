@@ -60,3 +60,11 @@ CI/CD and cluster manifests: [deployment/k8s/apps/umbr-fe/README.md](../../deplo
 ```bash
 CMS_BASE_URL=http://localhost:8080 npm run build
 ```
+
+## Observability (Phase 5)
+
+- Node OTel: `src/instrumentation.ts` → `instrumentation.node.ts`
+- Faro RUM: `FaroProvider` + `/api/faro` BFF
+- **Distributed trace:** Faro adds `traceparent` on same-origin fetch; `cmsFetch` injects it to Umbraco; CMS continues to SQL
+
+After deploy, in Grafana Tempo open a trace from `{ resource.service.name = "umbraco-web" && name = "cms.fetch" }` — one trace ID should include `umbraco-web` and `umbraco-cms` (+ SQL children). See [docs/RUNBOOK_OBSERVABILITY.md](../../docs/RUNBOOK_OBSERVABILITY.md).
