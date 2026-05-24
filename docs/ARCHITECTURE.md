@@ -2,7 +2,7 @@
 
 Target architecture for the **umbraco-monitoring** demo: applications, data, Kubernetes, observability.
 
-**Implementation status:** Phases 0–4 complete (apps in `demo-services`, LGTM+ in `observability`). Phase 5+ adds app OTLP/Faro and full Alloy pipeline.
+**Implementation status:** Phases 0–5 complete (apps in `demo-services`, LGTM+ in `observability`, OTLP/Faro/Alloy/Pyroscope on apps). Phase 6+ adds full k6 load testing and dashboards.
 
 ---
 
@@ -34,7 +34,7 @@ flowchart TB
 
 | Service | Technology | Responsibility |
 |---------|------------|----------------|
-| `umbraco-web` | Next.js | SSR/ISR, BFF route handlers, UI, Faro (Phase 5) |
+| `umbraco-web` | Next.js | SSR/ISR, BFF route handlers, UI, Faro, OTel (Phase 5 ✅) |
 | `umbraco-cms` | Umbraco headless | Delivery API, search, media, admin (seed) |
 | `umbraco-db` | SQL Server | Umbraco persistence |
 

@@ -12,7 +12,7 @@ description: >-
 ## Before you act
 
 1. Read [AGENTS.md](../../../AGENTS.md)
-2. Default phase: **5** (instrumentation). Phases **0–4** are complete unless the user names another phase.
+2. Default phase: **6** (k6 load testing). Phases **0–5** are complete unless the user names another phase.
 3. Open the matching section in [docs/IMPLEMENTATION_PLAN.md](../../../docs/IMPLEMENTATION_PLAN.md)
 
 ## Phase guardrails
@@ -24,7 +24,7 @@ description: >-
 | 2 | `src/umbr-fe/` | observability |
 | 3 | `deployment/k8s/apps/` | observability namespace, k6 |
 | 4 ✅ | `deployment/k8s/observability/` (done) | app OTel/Faro |
-| 5 | OTel, Alloy, Faro, Pyroscope SDKs | Beyla (unless user asks), k6 |
+| 5 ✅ | OTel, Alloy, Faro, Pyroscope SDKs (done) | Beyla (unless user asks), k6 |
 | 6 | `load/k6/` — **full** suite (smoke, load, stress, spike, cms-direct) | smoke-only as phase deliverable |
 | 7 | dashboards, alerts, demo docs | — |
 | 8 | Beyla | — |

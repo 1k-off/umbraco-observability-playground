@@ -118,7 +118,7 @@ Content site: articles, categories, authors, search, static About page.
 Even in Phases 1–2, use **stable route names** for future metrics:
 
 - `http.route`: `/articles`, `/api/search`, `/umbraco/api/search`
-- Do not put random query values in route template metric labels (normalize in OTel Phase 5)
+- Do not put random query values in route template metric labels (normalize in OTel — Phase 5 ✅)
 
 ---
 
@@ -158,5 +158,12 @@ Even in Phases 1–2, use **stable route names** for future metrics:
 ### Observability stack (Phase 4) — complete
 
 - [x] Namespace `observability` — LGTM+ (Mimir, Loki, Tempo, Pyroscope, Grafana, Alloy gateway + DaemonSet, MinIO, OpenMaxIO)
-- [x] Grafana UI and datasources; Pyroscope UI; alloy-gateway OTLP (placeholder config — signals to backends in Phase 5)
 - [x] Runbook [RUNBOOK_OBSERVABILITY.md](./RUNBOOK_OBSERVABILITY.md); manifests `deployment/k8s/observability/`
+
+### Application instrumentation (Phase 5) — complete
+
+- [x] OTel CMS + web → `alloy-gateway`; RED in Mimir (both `job`s)
+- [x] Tempo: web → CMS → SQL on reference trace; `cms.fetch` searchable
+- [x] Loki: CMS JSON logs with `trace_id`; Faro events in Loki
+- [x] Pyroscope: `umbraco-cms` profiles; Node SDK on web (re-validate flame under Phase 6 k6)
+- [x] Explore runbook: [run-docs/10-grafana-explore-cheatsheet.md](../run-docs/10-grafana-explore-cheatsheet.md)

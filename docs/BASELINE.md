@@ -11,7 +11,7 @@ Filled in **Phase 6** after the **full** k6 suite runs against the **instrumente
 | Web URL | _TBD_ |
 | CMS URL | _TBD_ |
 | Web / CMS replicas | _TBD_ |
-| Observability | Mimir, Loki, Tempo, Pyroscope, Alloy, Faro (Phase 5) |
+| Observability | Mimir, Loki, Tempo, Pyroscope, Alloy, Faro (Phase 5 ✅) |
 
 ## smoke.js
 

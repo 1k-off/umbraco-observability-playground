@@ -38,7 +38,7 @@ Pass via env: `K6_WEB_BASE_URL`, `K6_CMS_BASE_URL`.
 | `stress.js` | stress | 15 min | ramp to breaking point | Limits |
 | `spike.js` | spike | 5 min | 5→100→5 | Sudden spike |
 | `cms-direct.js` | load | 10 min | 20 | CMS API only |
-| `browser.js` (opt.) | browser | 5 min | 10 | Faro + RUM (after Phase 5 Faro) |
+| `browser.js` (opt.) | browser | 5 min | 10 | Faro + RUM (Phase 5 ✅) |
 
 ---
 

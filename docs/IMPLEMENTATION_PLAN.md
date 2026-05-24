@@ -12,7 +12,7 @@ flowchart LR
   P1 --> P2[Phase 2 Next.js ✅]
   P2 --> P3[Phase 3 K8s Apps ✅]
   P3 --> P4[Phase 4 K8s Obs ✅]
-  P4 --> P5[Phase 5 Instrument]
+  P4 --> P5[Phase 5 Instrument ✅]
   P5 --> P6[Phase 6 k6 load]
   P6 --> P7[Phase 7 Dashboards]
   P7 --> P8[Phase 8 Beyla optional]
@@ -25,7 +25,7 @@ flowchart LR
 | 2 | Next.js + shadcn | ✅ done | Health only |
 | 3 | Kubernetes (apps) | ✅ done | None |
 | 4 | Kubernetes (obs stack) | ✅ done | Infra only |
-| 5 | Instrumentation | 4–6 days | Full |
+| 5 | Instrumentation | ✅ done | Full |
 | 6 | k6 load testing | 3–5 days | Uses full stack |
 | 7 | Dashboards and demo | 3–4 days | Alerts |
 | 8 | Beyla + hardening | 2–3 days | eBPF |
@@ -211,7 +211,7 @@ NetworkPolicies are **out of scope** for this demo (default cluster networking i
 
 ## Phase 5 — Application instrumentation and Alloy
 
-**Status:** Implementation in repo (May 2026). Cluster DoD verification pending after image + Alloy rollout.
+**Status:** ✅ Complete (May 2026). Code, Alloy pipeline, and cluster DoD verified per [run-docs/10-grafana-explore-cheatsheet.md](../run-docs/10-grafana-explore-cheatsheet.md). Follow-ups under load: Pyroscope `umbraco-web` ingest and 100% trace propagation → Phase 6 correlation checklist.
 
 ### Goal
 
@@ -250,11 +250,11 @@ End-to-end metrics, logs, traces, profiles, RUM.
 
 ### DoD
 
-- [ ] Trace browser → web → cms → sql visible in Tempo (Grafana Explore)
-- [ ] Web logs contain trace_id matching the trace
-- [ ] RED metrics for both services in Mimir
-- [ ] Profiles in Pyroscope for .NET and Node (light traffic; full validation under k6 in Phase 6)
-- [ ] Faro sessions/events in Grafana (Faro data source)
+- [x] Trace browser → web → cms → sql visible in Tempo (Grafana Explore; reference trace `17434daa31df939a5b910737acc3054a`; not on every request)
+- [x] CMS logs contain `trace_id` matching Tempo; web JSON logs with `trace_id` on SERVER spans (see [run-docs/11-logs-and-trace-correlation.md](../run-docs/11-logs-and-trace-correlation.md))
+- [x] RED metrics for both services in Mimir (`http_server_request_duration_seconds_*` CMS, `http_server_duration_milliseconds_*` web)
+- [x] Profiles in Pyroscope for .NET (`umbraco-cms`); Node SDK deployed — **re-validate `umbraco-web` flames under Phase 6 k6**
+- [x] Faro sessions/events in Loki (`sdk_name=faro-web`; POST `/api/faro` → 202)
 
 ---
 
@@ -380,8 +380,8 @@ Use skills: `gh-actions-dotnet-build`, `gh-actions-nodejs-build`, `ci-cd-pipelin
 
 ## Next step for the agent
 
-**Phase 5:** OTel/Faro in apps, full Alloy River config per [MONITORING_STACK](./MONITORING_STACK.md) and [RUNBOOK_OBSERVABILITY](./RUNBOOK_OBSERVABILITY.md). Phase 4 (LGTM+ in `observability`) is complete.
+**Phase 6:** full k6 suite per [K6_LOAD_TESTING](./K6_LOAD_TESTING.md) — `load/k6/` (smoke, load, stress, spike, cms-direct); fill [BASELINE](./BASELINE.md); correlation run (Mimir, Tempo, Loki, Pyroscope, Faro).
 
-**Phase 6 (later):** full k6 suite per [K6_LOAD_TESTING](./K6_LOAD_TESTING.md) — only after Phase 5 instrumentation.
+Phases **0–5** are complete. Phase 5 journal: [run-docs/09-phase-5-instrumentation.md](../run-docs/09-phase-5-instrumentation.md).
 
 User must explicitly name the phase before mixing work from other phases.

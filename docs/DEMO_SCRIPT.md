@@ -22,7 +22,7 @@ Completed in **Phase 7**. Draft structure — guide for the agent.
 2. Loki: log line with `trace_id` → **View trace**
 3. Show search request: dedicated span on CMS
 
-## Part 3 — RUM (3 min, Phase 5+)
+## Part 3 — RUM (3 min, Phase 5 ✅)
 
 1. Open site in browser (or k6 browser)
 2. **Faro** dashboard: Web Vitals, session

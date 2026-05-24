@@ -1,6 +1,6 @@
 # Runbook: observability stack
 
-**Status:** Phase 4 ✅ complete (LGTM+ in cluster). Install/upgrade: [deployment/k8s/observability/README.md](../deployment/k8s/observability/README.md).
+**Status:** Phases 4–5 ✅ complete (LGTM+ in cluster; app OTLP/Faro/Pyroscope wired). Install/upgrade: [deployment/k8s/observability/README.md](../deployment/k8s/observability/README.md). Explore queries: [run-docs/10-grafana-explore-cheatsheet.md](../run-docs/10-grafana-explore-cheatsheet.md).
 
 ## Namespace
 
@@ -51,7 +51,7 @@ alloy-gateway.observability.svc:4317   # gRPC
 alloy-gateway.observability.svc:4318   # HTTP
 ```
 
-Phase 4: gateway listens on OTLP; signals dropped until Phase 5. Phase 5: update Alloy config from [observability/alloy/config.alloy](../observability/alloy/config.alloy).
+Gateway forwards OTLP/Faro/profiles per [observability/alloy/config.alloy](../observability/alloy/config.alloy) (Helm: [values-alloy-gateway.yaml](../deployment/k8s/observability/helm/values-alloy-gateway.yaml)).
 
 ## Health checks
 

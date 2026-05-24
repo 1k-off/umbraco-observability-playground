@@ -33,7 +33,7 @@ Aligned with [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md):
 | 2 | Next.js + shadcn ✅ |
 | 3 | K8s apps + ingress ✅ |
 | 4 | K8s observability stack ✅ |
-| 5 | OTel, Alloy, Faro, profiles (code ✅ — cluster verify pending) |
+| 5 | OTel, Alloy, Faro, profiles ✅ |
 | 6 | k6 full load testing ← next |
 | 7 | Dashboards, alerts, demo script |
 | 8 | Beyla (optional) |
@@ -53,7 +53,8 @@ Aligned with [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md):
 | Next.js | `src/umbr-fe/` | Phase 2 ✅ ([prod web](https://demo-umbr-fe.1node.tech)) |
 | App K8s | `deployment/k8s/apps/` | Phase 3 ✅ (`demo-services`) |
 | Observability K8s | `deployment/k8s/observability/` | Phase 4 ✅ (cluster verified) |
-| k6 | `load/k6/` | Phase 6 (after instrumentation) |
+| App instrumentation | `src/`, `observability/alloy/` | Phase 5 ✅ |
+| k6 | `load/k6/` | Phase 6 ← next |
 
 Local CMS: **Podman** — [src/umbraco/README.md](./src/umbraco/README.md) (`appsettings.Development.json`).  
 Web local: `cd src/umbr-fe && npm run dev` — [src/umbr-fe/.env.example](./src/umbr-fe/.env.example). Prod: [demo-umbr-fe.1node.tech](https://demo-umbr-fe.1node.tech).

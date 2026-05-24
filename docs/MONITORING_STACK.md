@@ -2,7 +2,7 @@
 
 Target **Grafana LGTM+** setup with **Alloy**, **Faro**, and optionally **Beyla** for the Umbraco + Next.js demo on Kubernetes.
 
-**Deployment (Phase 4 ✅):** namespace `observability` — Mimir, Loki, Tempo, Pyroscope, Grafana, Alloy (DaemonSet + gateway), MinIO, OpenMaxIO. See [RUNBOOK_OBSERVABILITY.md](./RUNBOOK_OBSERVABILITY.md) and [deployment/k8s/observability/README.md](../deployment/k8s/observability/README.md). App OTLP/Faro wiring is **Phase 5** (implemented in repo; cluster verify pending).
+**Deployment:** namespace `observability` — Mimir, Loki, Tempo, Pyroscope, Grafana, Alloy (DaemonSet + gateway), MinIO, OpenMaxIO (Phase 4 ✅). App OTLP/Faro/Pyroscope wiring (Phase 5 ✅). See [RUNBOOK_OBSERVABILITY.md](./RUNBOOK_OBSERVABILITY.md), [run-docs/10-grafana-explore-cheatsheet.md](../run-docs/10-grafana-explore-cheatsheet.md).
 
 ---
 

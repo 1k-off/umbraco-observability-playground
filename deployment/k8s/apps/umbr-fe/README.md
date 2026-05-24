@@ -78,7 +78,7 @@ curl -sS http://localhost:3000/api/health
 - **HPA:** CPU 70%, min 2 / max 5 pods ([hpa.yaml](./hpa.yaml)); Deployment starts with 2 replicas.
 - **`CMS_BASE_URL`:** public CMS URL so SSR and `next/image` media URLs work in the browser. Server-side BFF calls the same origin.
 - **Build-time `CMS_BASE_URL`:** must match CMS hostname for `next.config.ts` `images.remotePatterns` (set in CI Docker build-arg).
-- Observability `service.name` in Phase 5: `umbraco-web` ([docs/MONITORING_STACK.md](../../../docs/MONITORING_STACK.md)).
+- Observability `service.name`: `umbraco-web` ([docs/MONITORING_STACK.md](../../../docs/MONITORING_STACK.md)).
 
 ## Files
 

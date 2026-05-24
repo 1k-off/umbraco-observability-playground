@@ -61,7 +61,7 @@ CI/CD and cluster manifests: [deployment/k8s/apps/umbr-fe/README.md](../../deplo
 CMS_BASE_URL=http://localhost:8080 npm run build
 ```
 
-## Observability (Phase 5)
+## Observability (Phase 5 ✅)
 
 - Node OTel: `src/instrumentation.ts` → `instrumentation.node.ts`
 - Faro RUM: `FaroProvider` + `/api/faro` BFF

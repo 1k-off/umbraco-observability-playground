@@ -1,6 +1,6 @@
 # Observability stack (Kubernetes)
 
-**Phase 4 ✅** — LGTM+ deployed in namespace `observability` (Mimir, Loki, Tempo, Pyroscope, Grafana, Alloy, MinIO, OpenMaxIO). Application OTLP/Faro wiring is **Phase 5**. NetworkPolicies are not used in this demo.
+**Phases 4–5 ✅** — LGTM+ in namespace `observability`; apps send OTLP/Faro/profiles via `alloy-gateway`. NetworkPolicies are not used in this demo.
 
 ## Architecture
 
@@ -10,7 +10,7 @@ demo-services (apps)          observability
 │ umbraco, umbr-fe│          │ MinIO (S3) ← Mimir, Loki, Tempo      │
 └────────┬────────┘          │ OpenMaxIO Console → MinIO UI         │
          │ scrape/logs       │ Grafana ← datasources                │
-         │ (Phase 5)         │ Alloy DaemonSet + alloy-gateway:4317 │
+         │ OTLP/Faro/profile │ Alloy DaemonSet + alloy-gateway:4317 │
          └──────────────────►│ Pyroscope                            │
                              └──────────────────────────────────────┘
 ```
@@ -152,10 +152,9 @@ kubectl -n observability port-forward svc/openmaxio 9002:9002
 # http://localhost:9002 — login with minio-credentials
 ```
 
-## Alloy config (Phase 4 vs 5)
+## Alloy config (Phase 5 ✅)
 
-- **Phase 4:** placeholder River config in Helm values; OTLP received on gateway, signals dropped until Phase 5 wiring.
-- **Phase 5:** full pipeline in [observability/alloy/config.alloy](../../../observability/alloy/config.alloy) — copy into Helm values or ConfigMap and upgrade releases.
+Full pipeline in [observability/alloy/config.alloy](../../../observability/alloy/config.alloy) — mirrored in [helm/values-alloy-gateway.yaml](./helm/values-alloy-gateway.yaml) and [values-alloy-daemonset.yaml](./helm/values-alloy-daemonset.yaml).
 
 ## Verify (Phase 4 DoD)
 

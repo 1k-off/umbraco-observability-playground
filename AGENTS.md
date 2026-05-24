@@ -101,12 +101,12 @@ See [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md). Summary:
 | 2 | Next.js: pages, shadcn, CMS calls ✅ | Health only |
 | 3 | K8s: apps, DB, ingress ✅ | None |
 | 4 | K8s: observability namespace ✅ | Stack Helm/YAML |
-| 5 | Alloy, exporters, OTel, Faro | Yes |
+| 5 | Alloy, exporters, OTel, Faro | Yes ✅ |
 | 6 | k6: full suite (smoke, load, stress, spike, cms-direct) | Uses full stack |
 | 7 | Dashboards, recording rules, demo runbook | Yes |
 | 8 | Beyla (opt.), hardening | Yes |
 
-**Default phase for agents: 5** unless the user names another phase. Phases 0–4 (docs, apps, K8s `demo-services`, LGTM+ in `observability`) are complete. Default focus: app instrumentation (`src/`, `observability/alloy/`). **Phase 6** is full k6 in `load/k6/` — only after Phase 5 instrumentation.
+**Default phase for agents: 6** unless the user names another phase. Phases **0–5** are complete (apps, LGTM+, OTel/Faro/Alloy/Pyroscope). Default focus: **k6** in `load/k6/` and [docs/K6_LOAD_TESTING.md](./docs/K6_LOAD_TESTING.md).
 
 ## Code conventions (when implementation starts)
 
@@ -115,7 +115,7 @@ See [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md). Summary:
 - Headless: Delivery API + Management API for seed/admin only, not for the public frontend.
 - Pin .NET and Umbraco versions in `global.json` / README when creating the solution.
 - Required endpoints: `GET /health`, `GET /ready` (ready checks DB).
-- Logging: structured (JSON to stdout) with `trace_id`, `span_id` — **from Phase 5**; before that structured logs without trace correlation.
+- Logging: structured (JSON to stdout) with `trace_id`, `span_id` (Phase 5 ✅).
 - Seed: script or one-shot startup job with demo content (articles, categories, media) for k6.
 
 ### Next.js (`src/umbr-fe/`)
@@ -123,7 +123,7 @@ See [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md). Summary:
 - App Router, `src/` layout, `@/` aliases.
 - shadcn: components in `components/ui/`, do not duplicate styles.
 - CMS calls via server components / route handlers with caching (`revalidate`) as in APPLICATION_SPEC.
-- Faro SDK — **Phase 5 only**.
+- Faro SDK (Phase 5 ✅).
 - Env: `CMS_BASE_URL`, separate public vs server-only vars.
 
 ### Kubernetes (`deployment/k8s/`)
@@ -145,8 +145,9 @@ See [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md). Summary:
 - [x] Phase 2 criteria in IMPLEMENTATION_PLAN (Next.js web)
 - [x] Phase 3 criteria in IMPLEMENTATION_PLAN (K8s apps; prod Ingress verified)
 - [x] Phase 4 criteria in IMPLEMENTATION_PLAN (LGTM+ in `observability`; Grafana datasources, Alloy, Pyroscope verified)
-- [ ] Phase criteria for the **active** phase (5: instrumentation) are met
-- [x] README / docs updated for Phase 1–4 closure
+- [x] Phase 5 criteria in IMPLEMENTATION_PLAN (instrumentation; cluster DoD per run-docs/10)
+- [ ] Phase criteria for the **active** phase (6: k6 load testing) are met
+- [x] README / docs updated for Phase 1–5 closure
 - [ ] Full k6 suite passes on k8s (Phase 6; after instrumentation)
 - [ ] No secrets in git
 - [ ] AGENTS.md updated for new cross-cutting rules
