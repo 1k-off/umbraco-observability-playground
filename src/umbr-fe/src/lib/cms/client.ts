@@ -1,6 +1,7 @@
 import { context, propagation } from "@opentelemetry/api";
 
 import { getServerEnv } from "@/lib/env";
+import { log } from "@/lib/logging/logger";
 import { withCmsFetchSpan } from "@/lib/observability/tracer";
 import {
   mapArticleDetail,
@@ -58,6 +59,10 @@ async function cmsFetch<T>(path: string, options: FetchOptions = {}): Promise<T>
     const response = await fetch(url, init);
 
     if (!response.ok) {
+      log.warn("CMS request failed", {
+        "http.route": path,
+        "http.status_code": response.status,
+      });
       throw new Error(`CMS ${response.status} ${response.statusText} for ${path}`);
     }
 

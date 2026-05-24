@@ -7,8 +7,11 @@ import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import Pyroscope from "@pyroscope/nodejs";
 
-// Visible in pod logs after deploy — confirms Next instrumentation hook ran.
-console.log("[obs] starting Node OTel/Pyroscope", process.env.OTEL_SERVICE_NAME);
+import { log } from "@/lib/logging/logger";
+import {
+  logHttpResponse,
+  shouldIgnoreIncomingRequest,
+} from "@/lib/logging/http-request-log";
 
 const serviceName = process.env.OTEL_SERVICE_NAME ?? "umbraco-web";
 const deploymentEnvironment = process.env.OTEL_DEPLOYMENT_ENVIRONMENT ?? "demo";
@@ -39,10 +42,20 @@ const sdk = new NodeSDK({
   instrumentations: [
     getNodeAutoInstrumentations({
       "@opentelemetry/instrumentation-fs": { enabled: false },
-      // Propagate traceparent on Node fetch() to Umbraco (in addition to manual inject in cms client).
+      "@opentelemetry/instrumentation-http": {
+        enabled: true,
+        ignoreIncomingRequestHook: shouldIgnoreIncomingRequest,
+        responseHook: (span, response) => {
+          logHttpResponse(span, response);
+        },
+      },
       "@opentelemetry/instrumentation-undici": { enabled: true },
     }),
   ],
 });
 
 sdk.start();
+
+log.info("observability started", {
+  "deployment.environment": deploymentEnvironment,
+});

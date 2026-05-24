@@ -88,9 +88,9 @@ datasources:
             spanEndTimeShift: "1h"
             filterByTraceID: true
             filterBySpanID: false
-            # Loki pod label is service_name=demo-umbraco, not OTel service.name=umbraco-cms.
+            # CMS logs: Serilog JSON field TraceId (PascalCase). Helm: $$ → ${...} in Grafana.
             customQuery: true
-            query: '{namespace="demo-services", service_name=~"demo-umbraco|demo-umbr-fe"} |= `${__trace.traceId}`'
+            query: '{namespace="demo-services", service_name="demo-umbraco"} | json | TraceId="$${__trace.traceId}"'
           tracesToMetrics:
             datasourceUid: mimir
           serviceMap:

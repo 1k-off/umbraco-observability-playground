@@ -8,6 +8,11 @@ const cms = new URL(getServerEnv().CMS_BASE_URL);
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  logging: {
+    incomingRequests: {
+      ignore: [/^\/api\/health/, /^\/_next\//, /^\/api\/faro/],
+    },
+  },
   serverExternalPackages: [
     "@opentelemetry/sdk-node",
     "@opentelemetry/auto-instrumentations-node",

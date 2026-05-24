@@ -38,7 +38,6 @@ spec:
               cpu: "1"
               memory: 768Mi
           securityContext:
-            # Helps file descriptor limits for Node/Next in Alpine (with entrypoint ulimit).
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: false
           startupProbe:

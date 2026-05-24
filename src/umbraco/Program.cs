@@ -51,17 +51,9 @@ WebApplication app = builder.Build();
 app.UseForwardedHeaders();
 app.UseSerilogRequestLogging(options =>
 {
-    options.GetLevel = (context, _, exception) =>
-    {
-        if (exception is not null)
-        {
-            return LogEventLevel.Error;
-        }
-
-        return ProbePathFilters.IsProbePath(context.Request.Path)
-            ? LogEventLevel.Debug
-            : LogEventLevel.Information;
-    };
+    options.Filter = static context => ProbePathFilters.ShouldObserveHttpRequest(context.Request.Path);
+    options.GetLevel = static (_, _, exception) =>
+        exception is not null ? LogEventLevel.Error : LogEventLevel.Information;
 });
 app.UseMiddleware<RequestIdMiddleware>();
 app.UseResponseCompression();

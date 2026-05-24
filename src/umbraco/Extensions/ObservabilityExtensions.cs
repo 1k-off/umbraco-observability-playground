@@ -46,7 +46,7 @@ public static class ObservabilityExtensions
                 .AddAspNetCoreInstrumentation(instrumentation =>
                 {
                     instrumentation.Filter = context =>
-                        !ProbePathFilters.IsProbePath(context.Request.Path);
+                        ProbePathFilters.ShouldObserveHttpRequest(context.Request.Path);
                     instrumentation.RecordException = true;
                 })
                 .AddHttpClientInstrumentation()

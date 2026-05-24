@@ -116,9 +116,21 @@ alloy:
       }
 
       loki.process "demo_pods" {
+        stage.drop {
+          source              = "pod"
+          expression          = "loki-canary.*"
+          drop_counter_reason = "loki_canary"
+        }
+
+        stage.drop {
+          expression          = ".*fsnotify watcher.*"
+          drop_counter_reason = "fsnotify_noise"
+        }
+
         stage.json {
           expressions = {
             trace_id = "trace_id",
+            TraceId  = "TraceId",
           }
         }
 

@@ -95,9 +95,22 @@ loki.source.kubernetes "demo_pods" {
 
 // CMS: Serilog JSON with trace_id; web: plain Next.js logs (json stage is best-effort).
 loki.process "demo_pods" {
+  stage.drop {
+    source              = "pod"
+    expression          = "loki-canary.*"
+    drop_counter_reason = "loki_canary"
+  }
+
+  // Next.js may log fsnotify errors on stderr in prod; not actionable for the demo.
+  stage.drop {
+    expression          = ".*fsnotify watcher.*"
+    drop_counter_reason = "fsnotify_noise"
+  }
+
   stage.json {
     expressions = {
       trace_id = "trace_id",
+      TraceId  = "TraceId",
     }
   }
 

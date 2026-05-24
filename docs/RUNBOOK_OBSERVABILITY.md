@@ -291,7 +291,9 @@ Open the trace waterfall — expand CMS `GET` / Delivery API spans and SQL (`SEL
 | Loki CMS: trace filter empty | Use **`trace_id`** or substring: `{service_name="demo-umbraco"} \|= "<traceId>"`; see [run-docs/11-logs-and-trace-correlation.md](../run-docs/11-logs-and-trace-correlation.md) |
 | Tempo OOM / Grafana errors | `kubectl -n observability logs statefulset/tempo --tail=50` (STS, not Deployment) |
 | Web: no Mimir/Pyroscope | Next hook: `src/instrumentation.ts`; pod log should show `[obs] starting Node OTel` |
-| FE Loki: fsnotify spam | `WATCHPACK_POLLING` in ConfigMap + `docker-entrypoint.sh` ulimit; query `!= "fsnotify"` |
+| FE Loki: fsnotify spam | Alloy `stage.drop` for `fsnotify watcher`; standard `USER nextjs` image (no entrypoint); optional `!= "fsnotify"` in Explore |
+| Loki `unknown_service` + `ppppp...` | **Loki Canary** pods — `helm upgrade loki` with `lokiCanary.enabled: false`; filter `pod!~"loki-canary.*"` |
+| Trace→logs button empty trace id | Tempo customQuery: `| json | TraceId="$${__trace.traceId}"`; see [run-docs/11-logs-and-trace-correlation.md](../run-docs/11-logs-and-trace-correlation.md) |
 | mimir-gateway / loki-gateway nginx: `host not found in resolver "kube-dns..."` | Set `global.dnsService` to your cluster DNS Service (`kubectl get svc -n kube-system`). **RKE2:** `rke2-coredns-rke2-coredns` (see [values-mimir.yaml](../deployment/k8s/observability/helm/values-mimir.yaml)). Then `helm upgrade mimir ...` |
 | Loki install: `more than zero replicas` for single binary and scalable | In [values-loki.yaml](../deployment/k8s/observability/helm/values-loki.yaml) set `write`/`read`/`backend` `replicas: 0` with `singleBinary.replicas: 1` |
 | Tempo: `Access Key Id ... does not exist` | Chart must set `tempo.extraArgs.config.expand-env: "true"` and `tempo.extraEnv` from `minio-credentials` ([values-tempo.yaml](../deployment/k8s/observability/helm/values-tempo.yaml)); Secret must match running MinIO |
