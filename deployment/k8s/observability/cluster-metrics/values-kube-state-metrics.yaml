@@ -1,0 +1,50 @@
+# prometheus-community/kube-state-metrics
+fullnameOverride: kube-state-metrics
+
+replicas: 1
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    memory: 256Mi
+
+metricLabelsAllowlist:
+  - pods=[app.kubernetes.io/name]
+  - deployments=[app.kubernetes.io/name]
+
+# Limit cardinality for demo
+collectors:
+  - certificatesigningrequests
+  - configmaps
+  - cronjobs
+  - daemonsets
+  - deployments
+  - endpoints
+  - horizontalpodautoscalers
+  - ingresses
+  - jobs
+  - leases
+  - limitranges
+  - mutatingwebhookconfigurations
+  - namespaces
+  - networkpolicies
+  - nodes
+  - persistentvolumeclaims
+  - persistentvolumes
+  - poddisruptionbudgets
+  - pods
+  - replicasets
+  - replicationcontrollers
+  - resourcequotas
+  - secrets
+  - services
+  - statefulsets
+  - storageclasses
+  - validatingwebhookconfigurations
+  - volumeattachments
+
+podLabels:
+  app.kubernetes.io/part-of: demo-monitoring
+  metrics.demo/scrape: "kube-state-metrics"

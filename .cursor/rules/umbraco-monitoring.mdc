@@ -11,13 +11,14 @@ Before writing code, read `AGENTS.md` and the relevant `docs/*.md`.
 
 ## Default phase
 
-**Phases 0–5** are complete. Default agent focus is **Phase 6** (k6 load testing) unless the user says “Phase N”.
+**Phases 0–6** (CMS-first k6) and Phase 7 dashboard/exporter **as-code** are in repo. Default focus: deploy/verify Grafana dashboards unless the user says “Phase N”.
 
 - **Phases 1–3:** apps + K8s apps in `demo-services`.
 - **Phase 4 ✅:** LGTM+ in `observability` (no NetworkPolicies in demo).
 - **Phase 5 ✅:** OTel, Faro, full Alloy pipeline, Pyroscope (CMS verified on cluster).
-- **Phase 6:** full k6 load testing (`load/k6/` — smoke, load, stress, spike, cms-direct; not smoke-only).
-- **Phases 7–8:** dashboards, demo, Beyla optional.
+- **Phase 6 ✅:** CMS-first k6 (`load/k6/cms-*` + light `web-*`); antipatterns A/D (`articles-naive`, `demo/slow`).
+- **Phase 7:** dashboards (app RED, pod cAdvisor, cluster exporters) — apply scripts; live verify on cluster.
+- **Phase 8:** Beyla optional.
 
 ## Stack
 

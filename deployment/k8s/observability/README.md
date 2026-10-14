@@ -178,6 +178,18 @@ kubectl -n observability get pods -l app.kubernetes.io/instance=alloy-gateway
 
 In Grafana UI → **Connections** → **Data sources**: Mimir, Loki, Tempo should show **Working**. Pyroscope datasource requires the Pyroscope app plugin (installed via Helm values).
 
+## Dashboards + cluster metrics (Phase 7)
+
+```powershell
+# Sidecar ConfigMaps (JSON in observability/grafana/dashboards/)
+powershell -File ./scripts/apply-grafana-dashboards.ps1
+
+# node-exporter + kube-state-metrics + Alloy RBAC/config refresh
+powershell -File ./scripts/install-cluster-metrics.ps1
+```
+
+Helm Grafana must have `sidecar.dashboards.enabled: true` ([helm/values-grafana.yaml](./helm/values-grafana.yaml)).
+
 ## Uninstall
 
 ```bash

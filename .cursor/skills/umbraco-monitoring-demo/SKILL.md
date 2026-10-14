@@ -12,7 +12,7 @@ description: >-
 ## Before you act
 
 1. Read [AGENTS.md](../../../AGENTS.md)
-2. Default phase: **6** (k6 load testing). Phases **0–5** are complete unless the user names another phase.
+2. Default phase: **7** (deploy/verify dashboards). App/pod/cluster JSON under `observability/grafana/dashboards/`; apply with `scripts/apply-grafana-dashboards.ps1` + `scripts/install-cluster-metrics.ps1`.
 3. Open the matching section in [docs/IMPLEMENTATION_PLAN.md](../../../docs/IMPLEMENTATION_PLAN.md)
 
 ## Phase guardrails

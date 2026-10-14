@@ -40,14 +40,24 @@ GET /umbraco/api/search?q=article&page=1&pageSize=10
 ```http
 GET /umbraco/api/demo/slow?delayMs=100
 GET /umbraco/api/demo/fault?rate=0.1
+GET /umbraco/api/demo/articles-naive?take=10
 ```
+
+| Path | Flag | Purpose |
+|------|------|---------|
+| `/umbraco/api/demo/slow` | `Demo__SlowEndpoint` | Artificial delay (incident D) |
+| `/umbraco/api/demo/fault` | `Demo__FaultEndpoint` | Injected 5xx |
+| `/umbraco/api/demo/articles-naive` | `Demo__NaiveArticlesEndpoint` | Intentional N+1 (ContentService + per-item relation lookups) for load/obs demos |
 
 Enable via environment:
 
 ```text
 Demo__SlowEndpoint=true
 Demo__FaultEndpoint=true
+Demo__NaiveArticlesEndpoint=true
 ```
+
+When naive is enabled, Tempo should show parent span `DemoNaiveArticles` with child `ResolveArticleRelations` / `ContentService.GetById` / `MediaService.GetById` fan-out.
 
 ## Backoffice
 

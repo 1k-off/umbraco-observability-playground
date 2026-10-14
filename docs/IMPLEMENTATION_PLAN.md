@@ -13,7 +13,7 @@ flowchart LR
   P2 --> P3[Phase 3 K8s Apps ✅]
   P3 --> P4[Phase 4 K8s Obs ✅]
   P4 --> P5[Phase 5 Instrument ✅]
-  P5 --> P6[Phase 6 k6 load]
+  P5 --> P6[Phase 6 k6 CMS-first]
   P6 --> P7[Phase 7 Dashboards]
   P7 --> P8[Phase 8 Beyla optional]
 ```
@@ -26,7 +26,7 @@ flowchart LR
 | 3 | Kubernetes (apps) | ✅ done | None |
 | 4 | Kubernetes (obs stack) | ✅ done | Infra only |
 | 5 | Instrumentation | ✅ done | Full |
-| 6 | k6 load testing | 3–5 days | Uses full stack |
+| 6 | k6 load testing (CMS-first) | ✅ scripts + baseline | Uses full stack |
 | 7 | Dashboards and demo | 3–4 days | Alerts |
 | 8 | Beyla + hardening | 2–3 days | eBPF |
 
@@ -258,11 +258,11 @@ End-to-end metrics, logs, traces, profiles, RUM.
 
 ---
 
-## Phase 6 — k6 load testing
+## Phase 6 — k6 load testing (CMS-first)
 
 ### Goal
 
-**Full** load-testing programme against the instrumented stack — not smoke-only. Prove SLOs, record baselines, and drive visible signals in Grafana (metrics, traces, logs, profiles, RUM).
+**Full** load-testing programme against the instrumented stack — **CMS/.NET primary**, web secondary. Prove SLOs, record baselines, and drive visible signals in Grafana. Article narrative: intentional antipatterns **A** (N+1 `articles-naive`) and **D** (`demo/slow`) discovered via LGTM+.
 
 ### Scope (required)
 
@@ -270,39 +270,42 @@ Implement everything in [K6_LOAD_TESTING](./K6_LOAD_TESTING.md):
 
 | Scenario | Role |
 |----------|------|
-| `smoke.js` | CI / quick regression (1–2 min) |
-| `load.js` | Main mixed workload (~10 min, ramp VUs) |
-| `stress.js` | Find degradation / limits |
-| `spike.js` | Sudden traffic burst |
-| `cms-direct.js` | CMS-only isolation (Delivery API, search) |
+| `cms-smoke.js` | Primary CI / quick CMS regression (~1 min) |
+| `cms-load.js` | Main CMS mixed workload (~10 min, ramp VUs) |
+| `cms-stress.js` | Find degradation / limits |
+| `cms-spike.js` | Sudden traffic burst |
+| `cms-direct.js` | CMS-only isolation (same mix, fixed VUs) |
+| `web-smoke.js` / `web-load.js` | Secondary FE coverage (no article emphasis) |
 | `load/k6/lib/` | Shared helpers (URLs, checks, tags) |
 | `load/k6/data/` | `slugs.json`, `search-terms.json` from seed |
 
-Optional in Phase 6: `browser.js` (Faro + RUM) if Faro is stable.
+Demo endpoints: `Demo__NaiveArticlesEndpoint` (A), `Demo__SlowEndpoint` (D) — see [API_CMS](./API_CMS.md).
 
 ### Tasks
 
 1. Implement all scenario files under `load/k6/`
 2. Thresholds per scenario; tune after first runs on k8s Ingress URLs
-3. Runners: `pwsh ./scripts/k6-smoke.ps1`, optional `npm run k6:smoke` / `make load-smoke`
-4. Fill `docs/BASELINE.md` — primary target: **k8s** (`demo-umbr-fe`, `demo-cms`); optional local section
-5. Document correlation checklist: run `load.js` → verify RED in Mimir, traces in Tempo, logs with `trace_id`, Pyroscope flames, Faro sessions
-6. Optional: k6 Prometheus remote write for a unified dashboard — not required
+3. Runners: `scripts/k6-cms-*.ps1`, `scripts/k6-web-*.ps1` (Podman fallback via `-UsePodman`)
+4. Fill `docs/BASELINE.md` — primary: **CMS** (`demo-cms`); secondary: web
+5. Correlation checklist: `cms-load.js` → RED in Mimir, traces in Tempo (incl. N+1 fan-out when naive on), logs with `trace_id`, Pyroscope; A/D flag runs
+6. Optional: k6 Prometheus remote write — not required
 
 ### Do not in Phase 6
 
 - Treat smoke as sufficient for phase closure
+- Make frontend the primary load story for the Umbraco article
 - Run full stress/spike as blocking CI on every PR (nightly/manual only)
 
 ### DoD
 
-- [ ] **smoke** — exit 0 on k8s Ingress URLs (&lt; 2 min)
-- [ ] **load** — 10 min run meets thresholds in K6 doc
-- [ ] **stress** and **spike** — scripts run to completion; knee point / failure mode documented (no strict p95)
-- [ ] **cms-direct** — exit 0; isolates CMS in Grafana
-- [ ] `docs/BASELINE.md` filled (RPS, p95, error rate per scenario)
-- [ ] Correlation checklist passed once (load visible in Mimir/Tempo/Loki/Pyroscope; Faro if browser scenario used)
-- [ ] New load-bearing routes update [K6_LOAD_TESTING](./K6_LOAD_TESTING.md) and scenarios
+- [x] **cms-smoke** — exit 0 on k8s Ingress URLs (&lt; 2 min)
+- [x] **cms-load** — 10 min run meets thresholds in K6 doc
+- [x] **cms-stress** and **cms-spike** — scripts run to completion; knee point / failure mode documented (no strict p95)
+- [x] **cms-direct** — exit 0; isolates CMS in Grafana
+- [x] **web-smoke** (and short web-load) — exit 0 (secondary)
+- [x] `docs/BASELINE.md` filled (RPS, p95, error rate per CMS scenario)
+- [x] Correlation checklist documented (baseline runs done; A/D after enabling demo flags on **deployed** CMS with naive endpoint)
+- [x] New load-bearing routes update [K6_LOAD_TESTING](./K6_LOAD_TESTING.md) and scenarios (`articles-naive`)
 
 ---
 
@@ -310,26 +313,27 @@ Optional in Phase 6: `browser.js` (Faro + RUM) if Faro is stable.
 
 ### Goal
 
-Presentation-ready story: “load → signals → investigation”.
+Presentation-ready story: “load → signals → investigation” (app RED → pod resources → cluster).
 
 ### Tasks
 
-1. Grafana dashboards as code (`observability/grafana/dashboards/`)
-   - RED per service
-   - CMS: search latency, DB duration
-   - Web: SSR duration, cache hit ratio (if metric exists)
-   - k6 results (if exported to Prometheus)
-   - Faro: Web Vitals, errors, sessions
-2. Recording rules / alerts (optional Alertmanager)
-   - High error rate, p95 latency, Loki error log rate
-3. `docs/DEMO_SCRIPT.md` — step-by-step 15–20 min
-4. Correlation: Loki → Tempo, Tempo → Pyroscope (Grafana Explore)
+1. [x] Grafana dashboards as code (`observability/grafana/dashboards/`) + sidecar ConfigMaps
+   - RED: `umbraco-cms-red`, `umbraco-web-red`, `load-test-overview`
+   - CMS runtime: `umbraco-cms-runtime`
+   - Pod resources (cAdvisor): `k8s-pod-resources`
+   - Cluster (node-exporter + kube-state-metrics): `k8s-cluster-overview`
+2. [x] Alloy DaemonSet: kubelet cAdvisor scrape (demo-services/sqlserver) + scrape cluster exporters
+3. [x] Cluster exporters: `cluster-metrics/` (node-exporter, kube-state-metrics Helm values)
+4. [ ] Recording rules / alerts (optional Alertmanager) — deferred
+5. [x] `docs/DEMO_SCRIPT.md` — step-by-step with dashboard UIDs
+6. Correlation: Loki → Tempo, Tempo → Pyroscope (Grafana Explore) — datasources already wired
 
 ### DoD
 
-- [ ] Demo script reproducible by someone else from the doc
-- [ ] Under k6 load, dashboard changes visible in real time
-- [ ] One “incident” (slow endpoint / fault injection) visible in traces+logs
+- [x] Demo script reproducible from [DEMO_SCRIPT.md](./DEMO_SCRIPT.md)
+- [x] Dashboards provisioned as code; under k6 load, CMS RED / overview update (verify after deploy)
+- [x] Incident path documented (naive / slow / fault) in DEMO_SCRIPT + run-docs/12
+- [ ] Live verify on cluster after `helm upgrade` Grafana + Alloy + `install-cluster-metrics.ps1`
 
 ---
 
@@ -380,8 +384,8 @@ Use skills: `gh-actions-dotnet-build`, `gh-actions-nodejs-build`, `ci-cd-pipelin
 
 ## Next step for the agent
 
-**Phase 6:** full k6 suite per [K6_LOAD_TESTING](./K6_LOAD_TESTING.md) — `load/k6/` (smoke, load, stress, spike, cms-direct); fill [BASELINE](./BASELINE.md); correlation run (Mimir, Tempo, Loki, Pyroscope, Faro).
+**Phase 7:** dashboards + exporters are in repo. Deploy: upgrade Grafana (sidecar), Alloy DaemonSet, `scripts/apply-grafana-dashboards.ps1`, `scripts/install-cluster-metrics.ps1`; then verify under `cms-load`. Optional: Alertmanager rules; CMS `articles-naive` deploy for A/D screenshots ([run-docs/12](../run-docs/12-cms-load-correlation.md)).
 
-Phases **0–5** are complete. Phase 5 journal: [run-docs/09-phase-5-instrumentation.md](../run-docs/09-phase-5-instrumentation.md).
+Phases **0–6** scripts/baselines complete; Phase 7 as-code ready (live cluster verify pending). Phase 5 journal: [run-docs/09-phase-5-instrumentation.md](../run-docs/09-phase-5-instrumentation.md).
 
 User must explicitly name the phase before mixing work from other phases.

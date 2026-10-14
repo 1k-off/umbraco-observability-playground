@@ -13,6 +13,12 @@ data:
   Umbraco__CMS__Global__UseHttps: "false"
   Umbraco__CMS__Global__DefaultUILanguage: "en-US"
   Umbraco__CMS__WebRouting__UmbracoApplicationUrl: "https://demo-cms.1node.tech/"
+  # Demo load / article flags (default off). Enable for antipattern A/D runs:
+  # Demo__NaiveArticlesEndpoint: "true"   # N+1 GET /umbraco/api/demo/articles-naive
+  # Demo__SlowEndpoint: "true"            # GET /umbraco/api/demo/slow
+  Demo__NaiveArticlesEndpoint: "false"
+  Demo__SlowEndpoint: "false"
+  Demo__FaultEndpoint: "false"
   # Pyroscope native profiler — only process env (not appsettings)
   CORECLR_ENABLE_PROFILING: "1"
   CORECLR_PROFILER: "{BD1A650D-AC5D-4896-B64F-D6FA25D6B26A}"

@@ -62,13 +62,38 @@ helm upgrade --install pyroscope grafana/pyroscope -n $Ns -f "$HelmDir/values-py
 Write-Host "==> Grafana"
 helm upgrade --install grafana grafana-community/grafana -n $Ns -f "$HelmDir/values-grafana.yaml" --wait --timeout 10m
 
+Write-Host "==> Grafana dashboards (sidecar ConfigMaps)"
+# Root = .../deployment/k8s/observability → repo = ../../..
+$ApplyDash = Join-Path (Resolve-Path (Join-Path $Root '..\..\..')).Path 'scripts\apply-grafana-dashboards.ps1'
+if (Test-Path $ApplyDash) {
+  & $ApplyDash
+} else {
+  Write-Warning "apply-grafana-dashboards.ps1 not found at $ApplyDash"
+}
+
 Write-Host "==> Alloy"
 helm upgrade --install alloy grafana/alloy -n $Ns -f "$HelmDir/values-alloy-daemonset.yaml" --wait --timeout 5m
 helm upgrade --install alloy-gateway grafana/alloy -n $Ns -f "$HelmDir/values-alloy-gateway.yaml" --wait --timeout 5m
 
 kubectl apply -f "$Root/alloy/gateway-service.yaml" -n $Ns
+kubectl apply -f "$Root/alloy/rbac-cadvisor.yaml"
 kubectl apply -f "$Root/grafana/ingressroute.yaml" -n $Ns
+
+Write-Host "==> Cluster metrics (node-exporter + kube-state-metrics) — Phase 7"
+$InstallCm = Join-Path (Resolve-Path (Join-Path $Root '..\..\..')).Path 'scripts\install-cluster-metrics.ps1'
+if (Test-Path $InstallCm) {
+  # Exporters only (Alloy already upgraded above); avoid double helm race
+  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts 2>$null
+  helm repo update
+  helm upgrade --install node-exporter prometheus-community/prometheus-node-exporter `
+    -n $Ns -f "$Root/cluster-metrics/values-node-exporter.yaml" --wait --timeout 5m
+  helm upgrade --install kube-state-metrics prometheus-community/kube-state-metrics `
+    -n $Ns -f "$Root/cluster-metrics/values-kube-state-metrics.yaml" --wait --timeout 5m
+} else {
+  Write-Warning "cluster-metrics install skipped"
+}
 
 Write-Host ""
 Write-Host "Done. Verify: kubectl -n $Ns get pods"
 Write-Host "Public URLs (after DNS/nginx): https://demo-grafana.1node.tech, https://demo-openmaxio.1node.tech"
+Write-Host "Dashboards: powershell -File ./scripts/apply-grafana-dashboards.ps1"

@@ -137,15 +137,17 @@ Files: `observability/alloy/config.alloy` (or ConfigMap `alloy-config`).
 Minimum components:
 
 1. `prometheus.scrape` — pods with `prometheus.io/scrape: "true"`
-2. `prometheus.remote_write` → Mimir gateway URL
-3. `otelcol.receiver.otlp` `0.0.0.0:4317` / `4318`
-4. `otelcol.processor.batch` → `otelcol.exporter.otlp` (Tempo)
-5. `loki.source.kubernetes` or `discovery.kubernetes` + `loki.source.podlogs`
-6. `loki.write` → Loki gateway
-7. `faro.receiver` (if not using a separate Faro collector)
-8. `pyroscope.write` → Pyroscope
+2. `prometheus.scrape` **cadvisor** — kubelet `/metrics/cadvisor` (filter `demo-services|sqlserver`)
+3. `prometheus.scrape` **cluster_exporters** — node-exporter (:9100), kube-state-metrics (:8080)
+4. `prometheus.remote_write` → Mimir gateway URL
+5. `otelcol.receiver.otlp` `0.0.0.0:4317` / `4318`
+6. `otelcol.processor.batch` → Tempo / Loki / Mimir
+7. `loki.source.kubernetes` for `demo-services`
+8. `faro.receiver` + `pyroscope.receive_http` on gateway
 
 Gateway Service: `alloy-gateway.observability.svc:4317` (document in [RUNBOOK_OBSERVABILITY.md](./RUNBOOK_OBSERVABILITY.md)).
+
+Cluster exporters: [deployment/k8s/observability/cluster-metrics/](../deployment/k8s/observability/cluster-metrics/).
 
 ---
 
@@ -177,14 +179,18 @@ Enable **correlations**: Loki → Tempo (trace_id), Tempo → Loki, Tempo → Py
 
 ## Dashboards (Phase 7 — list)
 
-1. **Overview** — RPS, error rate, p95 latency (web + cms)
-2. **Umbraco CMS** — search duration, SQL, slow endpoint
-3. **Next.js Web** — route latency, CMS fetch child spans
-4. **Faro RUM** — Vitals, JS errors, sessions
-5. **k6** (optional) — if metrics from k6 output
-6. **Infrastructure** — pod CPU/mem, HPA
+JSON in `observability/grafana/dashboards/`; apply ConfigMaps: `scripts/apply-grafana-dashboards.ps1` (Grafana sidecar, folder **Demo**).
 
-Store JSON in `observability/grafana/dashboards/`.
+| UID | Purpose |
+|-----|---------|
+| `load-test-overview` | CMS vs web RPS/p95 during k6 |
+| `umbraco-cms-red` | CMS RED (seconds histograms) |
+| `umbraco-cms-runtime` | .NET GC / thread pool / exceptions |
+| `umbraco-web-red` | Web RED (millisecond histograms) |
+| `k8s-pod-resources` | Pod CPU/mem (cAdvisor → Mimir) |
+| `k8s-cluster-overview` | Nodes + kube-state (exporters) |
+
+Faro RUM / k6 remote_write / Alertmanager — optional later.
 
 ---
 

@@ -1,0 +1,7 @@
+# Dashboard JSON source of truth: observability/grafana/dashboards/
+# Apply with: powershell -File ./scripts/apply-grafana-dashboards.ps1
+# (kustomize cannot load files outside this directory; the script creates ConfigMaps.)
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: observability
+resources: []

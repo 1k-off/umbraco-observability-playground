@@ -1,0 +1,21 @@
+# prometheus-community/prometheus-node-exporter
+fullnameOverride: node-exporter
+
+rbac:
+  create: true
+
+service:
+  type: ClusterIP
+  port: 9100
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 32Mi
+  limits:
+    memory: 64Mi
+
+# Alloy discovers pods by name prefix node-exporter
+podLabels:
+  app.kubernetes.io/part-of: demo-monitoring
+  metrics.demo/scrape: "node-exporter"

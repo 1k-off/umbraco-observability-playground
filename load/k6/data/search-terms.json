@@ -1,0 +1,22 @@
+[
+  "article",
+  "category",
+  "author",
+  "monitoring",
+  "umbraco",
+  "demo",
+  "load",
+  "search",
+  "tech",
+  "blog",
+  "observability",
+  "tempo",
+  "mimir",
+  "loki",
+  "pyroscope",
+  "alloy",
+  "faro",
+  "kubernetes",
+  "dotnet",
+  "nextjs"
+]

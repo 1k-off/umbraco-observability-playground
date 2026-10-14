@@ -42,8 +42,9 @@ Content site: articles, categories, authors, search, static About page.
 | Method | Path | Behavior | k6 |
 |--------|------|----------|-----|
 | GET | `/umbraco/api/search?q=&page=&pageSize=` | Full-text Examine search | ✅ high |
-| GET | `/umbraco/api/demo/slow?delayMs=50-500` | Artificial delay (feature flag `Demo:SlowEndpoint`) | ✅ stress |
-| GET | `/umbraco/api/demo/fault?rate=0.1` | 10% responses 500 (feature flag) | ✅ demo incident |
+| GET | `/umbraco/api/demo/slow?delayMs=50-500` | Artificial delay (feature flag `Demo:SlowEndpoint`) | demo probe (not in k6 mix) |
+| GET | `/umbraco/api/demo/fault?rate=0.1` | 10% responses 500 (feature flag) | demo probe |
+| GET | `/umbraco/api/demo/articles-naive?take=` | Intentional N+1 enrichment (`Demo:NaiveArticlesEndpoint`) | demo probe (antipattern A; not in k6 mix) |
 | GET | `/health` | Always 200 | ✅ probe |
 | GET | `/ready` | 200 if DB OK, else 503 | ✅ probe |
 

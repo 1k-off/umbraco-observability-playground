@@ -1,0 +1,93 @@
+{
+  "uid": "load-test-overview",
+  "title": "Load test overview",
+  "tags": ["demo", "load-test", "k6"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-30m", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": { "text": "Mimir", "value": "mimir" },
+        "hide": 0
+      }
+    ]
+  },
+  "annotations": { "list": [] },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "CMS vs Web RPS",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": { "unit": "reqps", "custom": { "drawStyle": "line", "fillOpacity": 10 } },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_request_duration_seconds_count{job=\"demo-services/umbraco-cms\"}[5m]))",
+          "legendFormat": "cms",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" }
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(http_server_duration_milliseconds_count{job=\"demo-services/umbraco-web\"}[5m]))",
+          "legendFormat": "web",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "CMS p95 (s) vs Web p95 (ms)",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": { "custom": { "drawStyle": "line", "fillOpacity": 5 } },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "cms p95" },
+            "properties": [{ "id": "unit", "value": "s" }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "web p95" },
+            "properties": [{ "id": "unit", "value": "ms" }]
+          }
+        ]
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket{job=\"demo-services/umbraco-cms\"}[5m])) by (le))",
+          "legendFormat": "cms p95",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" }
+        },
+        {
+          "refId": "B",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_milliseconds_bucket{job=\"demo-services/umbraco-web\"}[5m])) by (le))",
+          "legendFormat": "web p95",
+          "datasource": { "type": "prometheus", "uid": "${datasource}" }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "text",
+      "title": "During k6",
+      "gridPos": { "h": 4, "w": 24, "x": 0, "y": 9 },
+      "options": {
+        "mode": "markdown",
+        "content": "1. Open this dashboard (refresh 10s)\n2. `powershell -File ./scripts/k6-cms-load.ps1 -UsePodman`\n3. Watch CMS RPS/p95 - then [Umbraco CMS - RED](/d/umbraco-cms-red) - [CMS Runtime](/d/umbraco-cms-runtime) - Pod resources (after Step 2)\n\nLinks: [CMS RED](/d/umbraco-cms-red) - [Web RED](/d/umbraco-web-red) - [CMS Runtime](/d/umbraco-cms-runtime)"
+      }
+    }
+  ]
+}

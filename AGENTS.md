@@ -102,11 +102,11 @@ See [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md). Summary:
 | 3 | K8s: apps, DB, ingress ✅ | None |
 | 4 | K8s: observability namespace ✅ | Stack Helm/YAML |
 | 5 | Alloy, exporters, OTel, Faro | Yes ✅ |
-| 6 | k6: full suite (smoke, load, stress, spike, cms-direct) | Uses full stack |
+| 6 | k6: CMS-first suite (`cms-*` + light `web-*`); antipatterns A/D | Uses full stack |
 | 7 | Dashboards, recording rules, demo runbook | Yes |
 | 8 | Beyla (opt.), hardening | Yes |
 
-**Default phase for agents: 6** unless the user names another phase. Phases **0–5** are complete (apps, LGTM+, OTel/Faro/Alloy/Pyroscope). Default focus: **k6** in `load/k6/` and [docs/K6_LOAD_TESTING.md](./docs/K6_LOAD_TESTING.md).
+**Default phase for agents: 7** (deploy/verify dashboards + optional alerts) unless the user names another phase. App/pod/cluster dashboard JSON and Alloy scrapes are in repo — apply via `scripts/apply-grafana-dashboards.ps1` and `scripts/install-cluster-metrics.ps1`. A/D demos: deploy `articles-naive` then enable CMS flags ([run-docs/12-cms-load-correlation.md](./run-docs/12-cms-load-correlation.md)).
 
 ## Code conventions (when implementation starts)
 
@@ -146,9 +146,9 @@ See [docs/IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md). Summary:
 - [x] Phase 3 criteria in IMPLEMENTATION_PLAN (K8s apps; prod Ingress verified)
 - [x] Phase 4 criteria in IMPLEMENTATION_PLAN (LGTM+ in `observability`; Grafana datasources, Alloy, Pyroscope verified)
 - [x] Phase 5 criteria in IMPLEMENTATION_PLAN (instrumentation; cluster DoD per run-docs/10)
-- [ ] Phase criteria for the **active** phase (6: k6 load testing) are met
-- [x] README / docs updated for Phase 1–5 closure
-- [ ] Full k6 suite passes on k8s (Phase 6; after instrumentation)
+- [x] Phase criteria for Phase 6 (CMS-first k6 scripts + BASELINE) are met; A/D live Grafana after CMS deploy
+- [x] README / docs updated for Phase 1–6
+- [x] Full k6 suite scripts pass on k8s Ingress (Phase 6)
 - [ ] No secrets in git
 - [ ] AGENTS.md updated for new cross-cutting rules
 

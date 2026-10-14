@@ -36,12 +36,31 @@ tempo:
         secretKeyRef:
           name: minio-credentials
           key: MINIO_ROOT_PASSWORD
+  # Chart defaults are ~4–6Gi; 1Gi OOMKilled on WAL replay / block flush.
   resources:
     requests:
-      cpu: 100m
-      memory: 512Mi
+      cpu: 250m
+      memory: 2Gi
     limits:
-      memory: 1Gi
+      cpu: 2000m
+      memory: 4Gi
+  # /ready stays 503 until ring join + flush; default probes restart during recovery.
+  livenessProbe:
+    httpGet:
+      path: /ready
+      port: 3200
+    initialDelaySeconds: 180
+    periodSeconds: 20
+    timeoutSeconds: 10
+    failureThreshold: 10
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 3200
+    initialDelaySeconds: 90
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 12
 
 persistence:
   enabled: true

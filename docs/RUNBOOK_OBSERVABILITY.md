@@ -1,6 +1,32 @@
 # Runbook: observability stack
 
-**Status:** Phases 4–5 ✅ complete (LGTM+ in cluster; app OTLP/Faro/Pyroscope wired). Install/upgrade: [deployment/k8s/observability/README.md](../deployment/k8s/observability/README.md). Explore queries: [run-docs/10-grafana-explore-cheatsheet.md](../run-docs/10-grafana-explore-cheatsheet.md).
+**Status:** Phases 4–5 ✅; Phase 7 dashboards as code + cAdvisor/cluster exporters in repo. Install/upgrade: [deployment/k8s/observability/README.md](../deployment/k8s/observability/README.md). Explore queries: [run-docs/10-grafana-explore-cheatsheet.md](../run-docs/10-grafana-explore-cheatsheet.md).
+
+## Dashboards (Phase 7)
+
+```powershell
+# After Grafana helm with sidecar.dashboards.enabled=true:
+powershell -File ./scripts/apply-grafana-dashboards.ps1
+
+# Pod + cluster metrics pipeline:
+powershell -File ./scripts/install-cluster-metrics.ps1
+```
+
+Grafana folder **Demo**: `load-test-overview`, `umbraco-cms-red`, `umbraco-cms-runtime`, `umbraco-web-red`, `k8s-pod-resources`, `k8s-cluster-overview`.
+
+Verify series in Explore:
+
+```promql
+# App (already from OTLP)
+sum(rate(http_server_request_duration_seconds_count{job="demo-services/umbraco-cms"}[5m]))
+
+# Pod (cAdvisor via Alloy)
+sum(container_memory_working_set_bytes{namespace="demo-services", container!="", container!="POD"}) by (pod)
+
+# Cluster
+sum(kube_pod_status_phase{job="kube-state-metrics", namespace="demo-services"} == 1) by (phase)
+1 - avg(rate(node_cpu_seconds_total{mode="idle", job="node-exporter"}[5m]))
+```
 
 ## Namespace
 

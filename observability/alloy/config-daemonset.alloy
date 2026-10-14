@@ -1,5 +1,5 @@
-// Phase 5 — DaemonSet: Prometheus scrape + Kubernetes pod logs (demo-services).
-// Deployed via deployment/k8s/observability/helm/values-alloy-daemonset.yaml
+// Phase 5–7 — DaemonSet: pod logs (demo-services) + optional app scrape + kubelet cAdvisor.
+// Deployed via deployment/k8s/observability/helm/values-alloy-daemonset.yaml (keep in sync).
 
 logging {
   level  = "info"
@@ -56,6 +56,113 @@ discovery.relabel "scrape_pods" {
 prometheus.scrape "demo_apps" {
   targets    = discovery.relabel.scrape_pods.output
   forward_to = [prometheus.remote_write.mimir.receiver]
+}
+
+// --- Kubelet cAdvisor (container CPU/memory) via API proxy ---
+
+discovery.kubernetes "nodes" {
+  role = "node"
+}
+
+discovery.relabel "cadvisor" {
+  targets = discovery.kubernetes.nodes.targets
+
+  rule {
+    action = "replace"
+    target_label = "__address__"
+    replacement  = "kubernetes.default.svc.cluster.local:443"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_node_name"]
+    regex         = "(.+)"
+    target_label  = "__metrics_path__"
+    replacement   = "/api/v1/nodes/$1/proxy/metrics/cadvisor"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_node_name"]
+    target_label  = "node"
+  }
+}
+
+prometheus.scrape "cadvisor" {
+  targets         = discovery.relabel.cadvisor.output
+  scheme          = "https"
+  bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+  scrape_interval = "30s"
+  scrape_timeout  = "10s"
+
+  tls_config {
+    ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    insecure_skip_verify = true
+  }
+
+  forward_to = [prometheus.relabel.demo_containers.receiver]
+}
+
+// Keep demo app (+ SQL) namespaces only — cut cardinality.
+prometheus.relabel "demo_containers" {
+  forward_to = [prometheus.remote_write.mimir.receiver]
+
+  rule {
+    source_labels = ["namespace"]
+    regex         = "demo-services|sqlserver"
+    action        = "keep"
+  }
+
+  // Drop short-lived / empty container ids noise
+  rule {
+    source_labels = ["container"]
+    regex         = ""
+    action        = "drop"
+  }
+}
+
+// --- node-exporter + kube-state-metrics (observability ns) ---
+
+discovery.kubernetes "obs_pods" {
+  role = "pod"
+
+  namespaces {
+    names = ["observability"]
+  }
+}
+
+discovery.relabel "cluster_exporters" {
+  targets = discovery.kubernetes.obs_pods.targets
+
+  // Keep only exporter metrics ports (SD already sets __address__ = podIP:port).
+  rule {
+    source_labels = [
+      "__meta_kubernetes_pod_label_metrics_demo_scrape",
+      "__meta_kubernetes_pod_container_port_number",
+    ]
+    separator = ";"
+    regex     = "node-exporter;9100|kube-state-metrics;8080"
+    action    = "keep"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_label_metrics_demo_scrape"]
+    target_label  = "job"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_node_name"]
+    target_label  = "node"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "namespace"
+  }
+}
+
+prometheus.scrape "cluster_exporters" {
+  targets         = discovery.relabel.cluster_exporters.output
+  scrape_interval = "30s"
+  forward_to      = [prometheus.remote_write.mimir.receiver]
 }
 
 prometheus.remote_write "mimir" {

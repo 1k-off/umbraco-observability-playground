@@ -31,3 +31,4 @@ kubeconfig.local
 secrets.local.yaml
 
 run-docs/
+local
