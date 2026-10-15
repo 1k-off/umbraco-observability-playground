@@ -21,6 +21,9 @@ export const options = {
     http_req_duration: ['p(95)<1500'],
     'http_req_duration{endpoint:delivery_list}': ['p(95)<1200'],
     'http_req_duration{endpoint:search}': ['p(95)<2000'],
+    // New routes — healthy SLOs (same bar as Delivery). Regression → threshold fail → investigate.
+    'http_req_duration{endpoint:articles_naive}': ['p(95)<1200'],
+    'http_req_duration{endpoint:demo_slow}': ['p(95)<200'],
   },
 };
 

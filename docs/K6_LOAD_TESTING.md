@@ -11,7 +11,7 @@ Scenarios, thresholds, and integration with the monitoring demo. Directory: `loa
 1. **SLO validation:** CMS smoke / load / stress / spike / cms-direct, plus light web smoke/load.
 2. **Observability correlation:** under `cms-load.js`, prove RPS/p95/errors in Mimir, traces in Tempo, `trace_id` in Loki, profiles in Pyroscope.
 3. **Baseline:** record RPS, p95, error rate in `docs/BASELINE.md` for the instrumented k8s environment.
-4. **Antipattern demos (article):** enabled on the **CMS** (`Demo__NaiveArticlesEndpoint` / `Demo__SlowEndpoint`), then probed separately (curl / Explore) while or after a normal `cms-load` — k6 suite does **not** branch on demo flags.
+4. **New CMS routes in the suite:** `articles-naive` and `demo/slow` (flags on CMS). Thresholds are **healthy SLOs** — tests do not assume a bug. If p95/checks fail after release → investigate in Grafana (Tempo/Pyroscope). k6 does **not** toggle flags.
 
 ---
 
@@ -42,18 +42,24 @@ Shared: `lib/config.js`, `lib/checks.js`, `lib/cms.js`, `lib/web.js`, `data/slug
 
 ---
 
-## Traffic mix (cms-load / cms-direct)
+## Traffic mix (cms-load / cms-direct / stress / spike)
 
 | Operation | Weight | Endpoint |
 |-----------|--------|----------|
-| Delivery list | ~40% | `GET /umbraco/delivery/api/v2/content?filter=contentType:article&…` |
-| Delivery item | ~30% | `GET /umbraco/delivery/api/v2/content/item/{path}` |
-| Search | ~25% | `GET /umbraco/api/search?q=` |
+| Delivery list | ~30% | `GET /umbraco/delivery/api/v2/content?filter=contentType:article&…` |
+| Delivery item | ~25% | `GET /umbraco/delivery/api/v2/content/item/{path}` |
+| Search | ~15% | `GET /umbraco/api/search?q=` |
+| Articles enrichment | ~20% | `GET /umbraco/api/demo/articles-naive?take=10` |
+| Demo slow | ~5% | `GET /umbraco/api/demo/slow?delayMs=50` |
 | Health | ~5% | `GET /health` |
+
+Requires CMS flags `Demo__NaiveArticlesEndpoint` / `Demo__SlowEndpoint` = true (otherwise 404 → failed checks).
 
 **Slug pool:** `load/k6/data/slugs.json` (`article-001`…`article-100`; Delivery path maps to `article-1`).
 
 **Search terms:** `load/k6/data/search-terms.json`.
+
+**Catching regressions:** SLOs for new routes match Delivery-class latency. A failed threshold after release is the signal to open Grafana — not something the test “expects”.
 
 ---
 
@@ -68,6 +74,8 @@ thresholds: {
 }
 ```
 
+Smoke also hits `articles-naive` and `slow` once per iteration.
+
 ### cms-load.js / cms-direct.js
 
 ```javascript
@@ -76,6 +84,8 @@ thresholds: {
   http_req_duration: ['p(95)<1500'],
   'http_req_duration{endpoint:delivery_list}': ['p(95)<1200'],
   'http_req_duration{endpoint:search}': ['p(95)<2000'],
+  'http_req_duration{endpoint:articles_naive}': ['p(95)<1200'],
+  'http_req_duration{endpoint:demo_slow}': ['p(95)<200'],
 }
 ```
 
@@ -115,19 +125,12 @@ powershell -File ./scripts/k6-web-load.ps1 -UsePodman
 4. Loki: CMS JSON logs with `trace_id`.
 5. Pyroscope: `umbraco-cms` profiles under load.
 
-### A — Naive N+1
+### If thresholds fail after release (investigation)
 
-1. Deploy CMS build that includes `/umbraco/api/demo/articles-naive`.
-2. Set `Demo__NaiveArticlesEndpoint=true` (env / ConfigMap), restart pod.
-3. Optionally keep ambient `cms-load.js` running; probe the bad path separately (curl / PowerShell), not via k6 flags.
-4. Tempo: parent `DemoNaiveArticles` → many `ResolveArticleRelations` / `ContentService.GetById` / `MediaService.GetById`.
-5. Mimir / Pyroscope: contrast vs Delivery list under the same ambient load.
-
-### D — Demo slow
-
-1. Set `Demo__SlowEndpoint=true`, restart.
-2. Probe `GET /umbraco/api/demo/slow?delayMs=200` (curl) while or after ambient `cms-load`.
-3. Tempo: span `DemoSlowEndpoint` with `demo.delay_ms` — latency without SQL fan-out (contrast to A).
+1. Confirm flags/routes are the new feature under test (`articles_naive`, `demo_slow`).
+2. k6 summary: which tag breached SLO (`articles_naive` vs Delivery still green → localize to new API).
+3. Tempo: slow traces on that route — e.g. `DemoNaiveArticles` fan-out GetById (N+1) or `DemoSlowEndpoint` delay.
+4. Mimir RED by route + Runtime + Pyroscope to confirm.
 
 ---
 

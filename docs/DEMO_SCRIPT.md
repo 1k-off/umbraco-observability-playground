@@ -43,17 +43,16 @@ Folders in Grafana: **Demo**
 1. Pyroscope: `umbraco-cms` under k6
 2. Flame graph hot path
 
-## Part 5 — Antipattern A (N+1)
+## Part 5 — After feature release (catch on thresholds)
 
-1. Deploy CMS with `articles-naive`; set `Demo__NaiveArticlesEndpoint=true`
-2. Keep ambient cms-load optional; probe `/umbraco/api/demo/articles-naive?take=10`
-3. Tempo: `DemoNaiveArticles` fan-out; contrast with Delivery on RED dashboard
+1. Deploy CMS; flags `Demo__NaiveArticlesEndpoint` + `Demo__SlowEndpoint` = true
+2. Run same `cms-load` (mix includes new routes with **healthy** SLOs)
+3. If k6 fails / p95 up vs Part 1 → CMS RED by route → Tempo / Pyroscope (localize N+1 vs delay)
+4. Show Delivery still OK while `articles_naive` (or `demo_slow`) breaches SLO
 
-## Part 6 — Slow path (D)
+## Part 6 — (optional) single-trace drill
 
-1. `Demo__SlowEndpoint=true`
-2. Probe `/umbraco/api/demo/slow?delayMs=200`
-3. Tempo: `DemoSlowEndpoint` (latency without SQL fan-out)
+curl `/umbraco/api/demo/articles-naive?take=10` or `/slow?delayMs=50` for one clean Tempo view
 
 ## Part 7 — Pod / cluster (after Step 2–3)
 

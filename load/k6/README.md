@@ -2,12 +2,13 @@
 
 Primary target: **Umbraco CMS** (`K6_CMS_BASE_URL`). Web scenarios are secondary.
 
-The suite hits **public CMS APIs only** (Delivery, search, health). Demo / antipattern endpoints are toggled on the CMS and probed outside k6 — see [run-docs/12-cms-load-correlation.md](../../run-docs/12-cms-load-correlation.md).
+Suite covers Delivery, search, health, plus post-release routes `articles-naive` and `demo/slow` (CMS flags required). **Thresholds are healthy SLOs** — tests do not assume a bug; a fail after release is what triggers Grafana investigation.
 
 ## Prerequisites
 
 - [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) on PATH, **or** Podman/Docker (`grafana/k6` image)
 - CMS reachable (default `https://demo-cms.1node.tech`)
+- `Demo__NaiveArticlesEndpoint` / `Demo__SlowEndpoint` = true when those routes are in the mix
 
 ## Scenarios
 

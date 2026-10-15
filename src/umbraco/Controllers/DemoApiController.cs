@@ -17,6 +17,7 @@ public class DemoApiController : ControllerBase
 {
     private readonly DemoOptions _options;
     private readonly IContentService _contentService;
+    private readonly IContentTypeService _contentTypeService;
     private readonly IMediaService _mediaService;
     private readonly ILogger<DemoApiController> _logger;
     private readonly Random _random = new();
@@ -24,17 +25,23 @@ public class DemoApiController : ControllerBase
     public DemoApiController(
         IOptions<DemoOptions> options,
         IContentService contentService,
+        IContentTypeService contentTypeService,
         IMediaService mediaService,
         ILogger<DemoApiController> logger)
     {
         _options = options.Value;
         _contentService = contentService;
+        _contentTypeService = contentTypeService;
         _mediaService = mediaService;
         _logger = logger;
     }
 
+    /// <summary>
+    /// Demo probe: returns immediately. delayMs is accepted for API compatibility and
+    /// echoed in the payload; artificial Task.Delay was removed (antipattern D fix).
+    /// </summary>
     [HttpGet("slow")]
-    public async Task<IActionResult> Slow([FromQuery] int delayMs = 100, CancellationToken cancellationToken = default)
+    public IActionResult Slow([FromQuery] int delayMs = 100)
     {
         if (!_options.SlowEndpoint)
         {
@@ -44,10 +51,12 @@ public class DemoApiController : ControllerBase
         delayMs = Math.Clamp(delayMs, 50, 500);
 
         using Activity? activity = DemoTelemetry.ActivitySource.StartActivity("DemoSlowEndpoint", ActivityKind.Internal);
-        activity?.SetTag("demo.delay_ms", delayMs);
+        activity?.SetTag("demo.delay_ms", 0);
+        activity?.SetTag("demo.requested_delay_ms", delayMs);
+        activity?.SetTag("demo.fixed", true);
 
-        await Task.Delay(delayMs, cancellationToken);
-        return Ok(new { delayedMs = delayMs });
+        // delayedMs reports actual wait (none). delayMs query still accepted for callers/k6 URLs.
+        return Ok(new { delayedMs = 0 });
     }
 
     [HttpGet("fault")]
@@ -70,9 +79,8 @@ public class DemoApiController : ControllerBase
     }
 
     /// <summary>
-    /// Intentionally suboptimal: lists articles via ContentService (DB) and resolves
-    /// category, author, featured image, and avatar with per-item GetById calls (N+1).
-    /// Enable with Demo:NaiveArticlesEndpoint for load / observability demos.
+    /// Articles enrichment: same JSON shape as before, but without GetRootContent + N+1 GetById.
+    /// Uses typed paging + batched GetByIds for relations/media (antipattern A fix).
     /// </summary>
     [HttpGet("articles-naive")]
     public IActionResult ArticlesNaive([FromQuery] int take = 10)
@@ -86,32 +94,133 @@ public class DemoApiController : ControllerBase
 
         using Activity? parent = DemoTelemetry.ActivitySource.StartActivity("DemoNaiveArticles", ActivityKind.Internal);
         parent?.SetTag("demo.take", take);
-        parent?.SetTag("demo.antipattern", "n_plus_one");
+        parent?.SetTag("demo.fixed", true);
 
-        // DB round-trip for root content instead of Delivery/published query cache.
-        List<IContent> articles = _contentService.GetRootContent()
-            .Where(c => c.ContentType.Alias == ContentTypeBootstrap.ArticleAlias)
-            .OrderByDescending(c => c.UpdateDate)
-            .Take(take)
+        IContentType? articleType = _contentTypeService.Get(ContentTypeBootstrap.ArticleAlias);
+        if (articleType is null)
+        {
+            return Ok(new
+            {
+                take,
+                count = 0,
+                relationLookups = 0,
+                antipattern = (string?)null,
+                items = Array.Empty<object>(),
+            });
+        }
+
+        using Activity? listSpan = DemoTelemetry.ActivitySource.StartActivity(
+            "ContentService.GetPagedOfType",
+            ActivityKind.Internal);
+        listSpan?.SetTag("contentType.alias", ContentTypeBootstrap.ArticleAlias);
+
+        List<IContent> articles = _contentService
+            .GetPagedOfType(
+                articleType.Id,
+                pageIndex: 0,
+                pageSize: take,
+                out _,
+                filter: null!,
+                Ordering.By(nameof(IContent.UpdateDate), Direction.Descending))
             .ToList();
 
         parent?.SetTag("demo.article_count", articles.Count);
 
-        var items = new List<object>(articles.Count);
-        var relationLookups = 0;
+        HashSet<Guid> contentKeys = [];
+        HashSet<Guid> mediaKeys = [];
 
         foreach (IContent article in articles)
         {
-            using Activity? relationSpan = DemoTelemetry.ActivitySource.StartActivity(
-                "ResolveArticleRelations",
-                ActivityKind.Internal);
-            relationSpan?.SetTag("article.id", article.Key.ToString());
-            relationSpan?.SetTag("article.slug", article.GetValue<string>("slug"));
+            if (TryGetGuid(article.GetValue<string>("category"), out Guid categoryKey))
+            {
+                contentKeys.Add(categoryKey);
+            }
 
-            // N+1: separate ContentService.GetById per relation (and media).
-            object? category = ResolveContentRelation(article.GetValue<string>("category"), ref relationLookups);
-            object? authorPayload = ResolveAuthorWithAvatar(article.GetValue<string>("author"), ref relationLookups);
-            string? featuredName = ResolveMediaName(article.GetValue<string>("featuredImage"), ref relationLookups);
+            if (TryGetGuid(article.GetValue<string>("author"), out Guid authorKey))
+            {
+                contentKeys.Add(authorKey);
+            }
+
+            if (TryGetGuid(article.GetValue<string>("featuredImage"), out Guid featuredKey))
+            {
+                mediaKeys.Add(featuredKey);
+            }
+        }
+
+        Dictionary<Guid, IContent> contentByKey;
+        using (Activity? batchContent = DemoTelemetry.ActivitySource.StartActivity(
+                   "ContentService.GetByIds",
+                   ActivityKind.Internal))
+        {
+            batchContent?.SetTag("demo.batch_size", contentKeys.Count);
+            contentByKey = contentKeys.Count == 0
+                ? []
+                : _contentService.GetByIds(contentKeys).ToDictionary(c => c.Key);
+        }
+
+        foreach (IContent author in contentByKey.Values)
+        {
+            if (TryGetGuid(author.GetValue<string>("avatar"), out Guid avatarKey))
+            {
+                mediaKeys.Add(avatarKey);
+            }
+        }
+
+        Dictionary<Guid, IMedia> mediaByKey;
+        using (Activity? batchMedia = DemoTelemetry.ActivitySource.StartActivity(
+                   "MediaService.GetByIds",
+                   ActivityKind.Internal))
+        {
+            batchMedia?.SetTag("demo.batch_size", mediaKeys.Count);
+            mediaByKey = mediaKeys.Count == 0
+                ? []
+                : _mediaService.GetByIds(mediaKeys).ToDictionary(m => m.Key);
+        }
+
+        int relationLookups = contentByKey.Count + mediaByKey.Count;
+        parent?.SetTag("demo.relation_lookups", relationLookups);
+
+        var items = new List<object>(articles.Count);
+        foreach (IContent article in articles)
+        {
+            object? category = null;
+            if (TryGetGuid(article.GetValue<string>("category"), out Guid categoryKey)
+                && contentByKey.TryGetValue(categoryKey, out IContent? categoryContent))
+            {
+                category = new
+                {
+                    id = categoryContent.Key,
+                    name = categoryContent.GetValue<string>("name") ?? categoryContent.Name,
+                    slug = categoryContent.GetValue<string>("slug"),
+                };
+            }
+
+            object? authorPayload = null;
+            if (TryGetGuid(article.GetValue<string>("author"), out Guid authorKey)
+                && contentByKey.TryGetValue(authorKey, out IContent? author))
+            {
+                string? avatarName = null;
+                if (TryGetGuid(author.GetValue<string>("avatar"), out Guid avatarKey)
+                    && mediaByKey.TryGetValue(avatarKey, out IMedia? avatar))
+                {
+                    avatarName = avatar.Name;
+                }
+
+                authorPayload = new
+                {
+                    id = author.Key,
+                    name = author.GetValue<string>("name") ?? author.Name,
+                    slug = author.GetValue<string>("slug"),
+                    avatarName,
+                };
+            }
+
+            string? featuredName = null;
+            if (TryGetGuid(article.GetValue<string>("featuredImage"), out Guid featuredKey)
+                && mediaByKey.TryGetValue(featuredKey, out IMedia? featured))
+            {
+                featuredName = featured.Name;
+            }
 
             items.Add(new
             {
@@ -125,9 +234,8 @@ public class DemoApiController : ControllerBase
             });
         }
 
-        parent?.SetTag("demo.relation_lookups", relationLookups);
         _logger.LogInformation(
-            "Naive articles endpoint returned {Count} items with {Lookups} relation lookups",
+            "Articles enrichment returned {Count} items with {Lookups} batched relation lookups",
             items.Count,
             relationLookups);
 
@@ -136,75 +244,9 @@ public class DemoApiController : ControllerBase
             take,
             count = items.Count,
             relationLookups,
-            antipattern = "n_plus_one",
+            antipattern = (string?)null,
             items,
         });
-    }
-
-    private object? ResolveContentRelation(string? udiString, ref int relationLookups)
-    {
-        if (!TryGetGuid(udiString, out Guid key))
-        {
-            return null;
-        }
-
-        using Activity? span = DemoTelemetry.ActivitySource.StartActivity("ContentService.GetById", ActivityKind.Internal);
-        span?.SetTag("content.key", key.ToString());
-        relationLookups++;
-        IContent? content = _contentService.GetById(key);
-        if (content is null)
-        {
-            return null;
-        }
-
-        return new
-        {
-            id = content.Key,
-            name = content.GetValue<string>("name") ?? content.Name,
-            slug = content.GetValue<string>("slug"),
-        };
-    }
-
-    private object? ResolveAuthorWithAvatar(string? authorUdi, ref int relationLookups)
-    {
-        if (!TryGetGuid(authorUdi, out Guid authorKey))
-        {
-            return null;
-        }
-
-        using Activity? span = DemoTelemetry.ActivitySource.StartActivity("ContentService.GetById", ActivityKind.Internal);
-        span?.SetTag("content.key", authorKey.ToString());
-        span?.SetTag("content.role", "author");
-        relationLookups++;
-        IContent? author = _contentService.GetById(authorKey);
-        if (author is null)
-        {
-            return null;
-        }
-
-        string? avatarName = ResolveMediaName(author.GetValue<string>("avatar"), ref relationLookups);
-
-        return new
-        {
-            id = author.Key,
-            name = author.GetValue<string>("name") ?? author.Name,
-            slug = author.GetValue<string>("slug"),
-            avatarName,
-        };
-    }
-
-    private string? ResolveMediaName(string? mediaUdi, ref int relationLookups)
-    {
-        if (!TryGetGuid(mediaUdi, out Guid mediaKey))
-        {
-            return null;
-        }
-
-        using Activity? span = DemoTelemetry.ActivitySource.StartActivity("MediaService.GetById", ActivityKind.Internal);
-        span?.SetTag("media.key", mediaKey.ToString());
-        relationLookups++;
-        IMedia? media = _mediaService.GetById(mediaKey);
-        return media?.Name;
     }
 
     private static bool TryGetGuid(string? udiString, out Guid key)

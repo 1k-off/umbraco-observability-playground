@@ -45,9 +45,9 @@ GET /umbraco/api/demo/articles-naive?take=10
 
 | Path | Flag | Purpose |
 |------|------|---------|
-| `/umbraco/api/demo/slow` | `Demo__SlowEndpoint` | Artificial delay (incident D) |
+| `/umbraco/api/demo/slow` | `Demo__SlowEndpoint` | Demo probe (no artificial delay; `{ delayedMs: 0 }`) |
 | `/umbraco/api/demo/fault` | `Demo__FaultEndpoint` | Injected 5xx |
-| `/umbraco/api/demo/articles-naive` | `Demo__NaiveArticlesEndpoint` | Intentional N+1 (ContentService + per-item relation lookups) for load/obs demos |
+| `/umbraco/api/demo/articles-naive` | `Demo__NaiveArticlesEndpoint` | Articles enrichment (batched GetByIds; same item JSON as former N+1 demo) |
 
 Enable via environment:
 
@@ -57,7 +57,7 @@ Demo__FaultEndpoint=true
 Demo__NaiveArticlesEndpoint=true
 ```
 
-When naive is enabled, Tempo should show parent span `DemoNaiveArticles` with child `ResolveArticleRelations` / `ContentService.GetById` / `MediaService.GetById` fan-out.
+When enrichment is enabled, Tempo should show `DemoNaiveArticles` with `GetPagedOfType` / batched `GetByIds` (not a per-item `GetById` fan-out).
 
 ## Backoffice
 

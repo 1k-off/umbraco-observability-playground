@@ -2,10 +2,12 @@ import { sleep } from 'k6';
 import { SharedArray } from 'k6/data';
 import { cmsBaseUrl } from './lib/config.js';
 import {
+  cmsArticlesNaive,
   cmsDeliveryItem,
   cmsDeliveryList,
   cmsHealth,
   cmsSearch,
+  cmsSlow,
 } from './lib/cms.js';
 
 const slugs = new SharedArray('slugs', () => JSON.parse(open('./data/slugs.json')));
@@ -31,5 +33,7 @@ export default function () {
   cmsDeliveryList(0, 10);
   cmsDeliveryItem(slugs[Math.floor(Math.random() * slugs.length)]);
   cmsSearch(searchTerms[Math.floor(Math.random() * searchTerms.length)]);
+  cmsArticlesNaive(5);
+  cmsSlow(50);
   sleep(1);
 }
